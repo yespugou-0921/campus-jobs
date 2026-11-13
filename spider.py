@@ -201,6 +201,125 @@ def delivery_channel(item):
     return "其他"
 
 
+# ============================================================
+# 知名企业官方招聘网站对照表（人工核实，只收确定的真实官网）
+# 原则：数据源没给链接、但公司官网招聘入口是公开常识的，
+#       补挂官网直链；拿不准的公司一律不加，宁可走搜索兜底。
+# 匹配规则：公司名（转小写）包含关键词即命中，按顺序取第一个。
+# ============================================================
+OFFICIAL_SITES = [
+    # 互联网大厂
+    ("腾讯", "https://join.qq.com"),
+    ("字节跳动", "https://jobs.bytedance.com"),
+    ("阿里巴巴", "https://campus.alibaba.com"),
+    ("阿里云", "https://campus.alibaba.com"),
+    ("蚂蚁", "https://talent.antgroup.com"),
+    ("网易", "https://campus.163.com"),
+    ("京东", "https://campus.jd.com"),
+    ("百度", "https://talent.baidu.com"),
+    ("美团", "https://campus.meituan.com"),
+    ("拼多多", "https://careers.pinduoduo.com"),
+    ("哔哩哔哩", "https://jobs.bilibili.com"),
+    ("bilibili", "https://jobs.bilibili.com"),
+    ("快手", "https://campus.kuaishou.com"),
+    ("小红书", "https://job.xiaohongshu.com"),
+    ("滴滴", "https://campus.didiglobal.com"),
+    ("携程", "https://campus.ctrip.com"),
+    ("同程", "https://campus.ly.com"),
+    # 硬件 / 智能终端 / 通信
+    ("华为", "https://career.huawei.com"),
+    ("荣耀", "https://career.honor.com"),
+    ("小米", "https://hr.xiaomi.com/campus"),
+    ("oppo", "https://careers.oppo.com"),
+    ("vivo", "https://hr.vivo.com/campus"),
+    ("中兴", "https://job.zte.com.cn"),
+    ("大疆", "https://we.dji.com"),
+    ("海康威视", "https://campus.hikvision.com"),
+    ("大华股份", "https://career.dahuatech.com"),
+    ("tp-link", "https://hr.tp-link.com.cn/campus"),
+    ("深信服", "https://career.sangfor.com"),
+    ("科大讯飞", "https://campus.iflytek.com"),
+    ("京东方", "https://job.boe.com"),
+    ("传音", "https://careers.transsion.com"),
+    ("歌尔", "https://zhaopin.goertek.com"),
+    ("立讯", "https://career.luxshare-ict.com"),
+    # 汽车 / 新能源
+    ("比亚迪", "https://job.byd.com"),
+    ("宁德时代", "https://career.catl.com"),
+    ("蔚来", "https://campus.nio.cn"),
+    ("小鹏汽车", "https://job.xiaopeng.com"),
+    ("阳光电源", "https://career.sungrowpower.com"),
+    ("汇川", "https://zhaopin.inovance.com"),
+    ("亿纬", "https://zhaopin.evepower.com"),
+    ("欣旺达", "https://career.sunwoda.com"),
+    # 家电 / 制造 / 软件
+    ("美的", "https://campus.midea.com"),
+    ("海尔", "https://career.haier.com"),
+    ("海信", "https://jobs.hisense.com"),
+    ("格力", "https://zhaopin.gree.com"),
+    ("tcl", "https://career.tcl.com"),
+    ("浪潮集团", "https://zhaopin.inspur.com"),
+    ("用友", "https://career.yonyou.com"),
+    ("金蝶", "https://zhaopin.kingdee.com"),
+    ("顺丰", "https://campus.sf-express.com"),
+    # 游戏
+    ("米哈游", "https://job.mihoyo.com"),
+    ("完美世界", "https://job.wanmei.com"),
+    ("三七互娱", "https://zhaopin.37.com"),
+    # 央国企 / 金融
+    ("国家电网", "https://zhaopin.sgcc.com.cn"),
+    ("中国移动", "https://job.10086.cn"),
+    ("中国联通", "https://job.10010.com.cn"),
+    ("中国电信", "https://job.10000.com.cn"),
+    ("招商银行", "https://career.cmbchina.com"),
+    ("工商银行", "https://job.icbc.com.cn"),
+    ("建设银行", "https://job.ccb.com"),
+    ("农业银行", "https://job.abchina.com"),
+    ("交通银行", "https://job.bankcomm.com"),
+    ("中国银行", "https://campus.boc.cn"),
+    ("平安", "https://careers.pingan.com"),
+    # 教育 / 其他
+    ("猿辅导", "https://career.yuanfudao.com"),
+    ("猿力", "https://career.yuanfudao.com"),
+    ("作业帮", "https://job.zuoyebang.com"),
+    ("新东方", "https://zhaopin.xdf.cn"),
+    ("好未来", "https://job.tal.com.cn"),
+    ("shein", "https://www.sheincorp.cn"),
+    ("同花顺", "https://job.10jqka.com.cn"),
+]
+
+
+# 误挂排除规则：关键词容易撞上不相关公司名，命中排除词就跳过该关键词
+# 例如「北京东西分析仪器」含"京东"、「星际荣耀」是火箭公司不是荣耀手机
+EXCLUDE_RULES = {
+    "京东": ("京东方", "东西"),
+    "荣耀": ("星际荣耀",),
+    "蚂蚁": ("社会工作",),
+    "海信": ("上海信息",),
+}
+
+
+def enrich_official_sites(jobs):
+    """给没有官网链接、但公司命中对照表的岗位补挂官网直链。"""
+    added = 0
+    for j in jobs:
+        if j.get("official_url"):
+            continue
+        co = (j.get("company") or "").lower()
+        if not co:
+            continue
+        for kw, url in OFFICIAL_SITES:
+            if kw not in co:
+                continue
+            if any(x in co for x in EXCLUDE_RULES.get(kw, ())):
+                continue  # 撞名公司，换下一个关键词再试
+            j["official_url"] = url
+            j["delivery_channel"] = "官网"
+            added += 1
+            break
+    return added
+
+
 def convert_xixicc(raw_jobs, today):
     result = []
     for item in raw_jobs:
@@ -439,6 +558,9 @@ def main():
     jobs = convert_xixicc(raw1, today) + convert_hueun(raw2, today)
     jobs = dedupe(jobs)
     print("合并去重后 %d 条" % len(jobs))
+
+    added = enrich_official_sites(jobs)
+    print("官方招聘网对照表补充链接 %d 条" % added)
 
     write_data_js(jobs)
     print("data.js 更新完成！备份已保存为 data.js.bak")
