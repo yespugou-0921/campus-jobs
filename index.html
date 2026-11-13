@@ -1056,16 +1056,16 @@
   <div class="pop-title">主题色</div>
   <div class="swatch-row">
     <div>
+      <div class="swatch" data-theme="blossom" style="background:conic-gradient(#E3D6BF 0 50%, #933B5B 0)"></div>
+      <div class="swatch-name">莓果</div>
+    </div>
+    <div>
       <div class="swatch" data-theme="dark" style="background:conic-gradient(#1B1D21 0 50%, #7FA3D6 0)"></div>
       <div class="swatch-name">曜石</div>
     </div>
     <div>
       <div class="swatch" data-theme="light" style="background:conic-gradient(#EFEBE3 0 50%, #3A5F94 0)"></div>
       <div class="swatch-name">米白</div>
-    </div>
-    <div>
-      <div class="swatch" data-theme="blossom" style="background:conic-gradient(#E3D6BF 0 50%, #933B5B 0)"></div>
-      <div class="swatch-name">莓果</div>
     </div>
     <div>
       <div class="swatch" data-theme="frost" style="background:conic-gradient(#02122F 0 50%, #8BA3C5 0)"></div>
@@ -1273,8 +1273,8 @@
     if (!saved) {
       try { if (localStorage.getItem("job-site-mode") === "light") saved = "light"; } catch (e) {}
     }
-    /* 默认曜石深色；用户手动切过就用他选的 */
-    applyTheme(saved || "dark");
+    /* 默认莓果（用户指定：所有新访客第一眼都是莓果）*/
+    applyTheme(saved || "blossom");
   })();
 
   /* 设置弹层开关 */
