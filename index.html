@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>一咝卟狗の校招情报库</title>
+<title>YESPUGOU'S 一咝卟狗 校园情报站</title>
 <style>
   /* ========== 主题变量：浅色模式（默认） ========== */
   :root {
@@ -345,9 +345,11 @@
   .search-box input {
     width: 100%;
     height: 38px;
-    border: 1.5px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255, 255, 255, .38));
     border-radius: 19px;
-    background: var(--input-bg);
+    background: color-mix(in srgb, var(--input-bg) 62%, transparent);
+    -webkit-backdrop-filter: blur(8px) saturate(1.1);
+    backdrop-filter: blur(8px) saturate(1.1);
     color: var(--text);
     font-size: 13px;
     font-family: inherit;
@@ -355,6 +357,7 @@
     outline: none;
     transition: border-color .15s, box-shadow .15s, background .25s;
   }
+  .search-box input:focus { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
   .search-box input::placeholder { color: var(--text-3); }
   .search-box input:focus {
     border-color: var(--theme);
@@ -371,37 +374,55 @@
     background: var(--theme); opacity: .55;
     border-radius: 1px; margin-top: 6px;
   }
-  .type-list { flex: 1; overflow-y: auto; padding: 10px 12px 16px; }
+  /* 便当盒布局：分类是一格一格的小方盒，"全部/已结束"占整行大盒，统一圆角和间距 */
+  .type-list {
+    flex: 1; overflow-y: auto;
+    padding: 10px 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-content: start;
+  }
   .type-item {
-    display: flex; align-items: center; gap: 8px;
+    position: relative;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 3px;
     width: 100%;
+    min-height: 56px;
     text-align: left;
-    border: none;
-    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255, 255, 255, .3));
+    background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     color: var(--text-2);
-    font-size: 13px;
+    font-size: 12.5px;
+    line-height: 1.35;
     font-family: inherit;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 9px 40px 9px 12px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: background .15s, color .15s, transform .15s, border-color .15s;
   }
-  .type-item + .type-item { margin-top: 4px; }
-  .type-item:hover { background: var(--hover-bg); color: var(--text); }
-  .type-item.active { background: var(--theme); color: #FFFFFF; font-weight: 600; }
+  .type-item:hover { color: var(--text); transform: translateY(-1px); border-color: var(--theme); }
+  .type-item.active {
+    background: var(--theme); border-color: var(--theme);
+    color: #FFFFFF; font-weight: 600;
+  }
   .type-item .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border); flex-shrink: 0;
+    display: none;   /* 便当盒卡片用边框和底色表达状态，小圆点退役（"已结束"整行除外） */
   }
-  .type-item.active .dot { background: rgba(255,255,255,.75); }
+  .type-item.wide .dot { display: inline; }
   .type-item .n {
-    margin-left: auto;
+    position: absolute; top: 50%; right: 10px;
+    transform: translateY(-50%);
     font-size: 11px;
     background: var(--tag-default-bg);
     color: var(--text-3);
     padding: 1px 8px; border-radius: 999px;
+    white-space: nowrap;
   }
   .type-item.active .n { background: rgba(255,255,255,.22); color: #FFFFFF; }
+  .type-item.wide { grid-column: 1 / -1; flex-direction: row; align-items: center; min-height: 44px; }
   .col2-foot {
     font-size: 10px; color: var(--text-3); line-height: 1.8;
     padding: 12px 18px 14px;
@@ -426,6 +447,24 @@
     letter-spacing: 2px;
     /* 标题专用字体：圆润体（幼圆/圆体系），软萌但不幼稚；没有就平滑回退到黑体 */
     font-family: "Yuanti SC", "YouYuan", "幼圆", "STYuanti", "Hiragino Maru Gothic ProN", "Quicksand", "Varela Round", "Microsoft YaHei", sans-serif;
+  }
+  /* 两行品牌 logo：上行英文粗黑体（参考 FIRST STAR 海报的重磅无衬线），下行中文站名 */
+  .page-title .brand-en {
+    display: block;
+    font-family: "Archivo Black", "Arial Black", "Avenir Heavy", "Inter", sans-serif;
+    font-weight: 900;
+    font-size: 21px;
+    line-height: 1.05;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+  .page-title .brand-zh {
+    display: block;
+    margin-top: 3px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 5px;
+    color: var(--text);
   }
   .page-title .sub { font-size: 10px; font-weight: 500; color: var(--text-3); letter-spacing: 2px; display: block; margin-top: 3px; font-family: "Inter", "Microsoft YaHei", "PingFang SC", sans-serif; }
   /* 标题后的小介绍按钮：平时几乎隐形，悬停立刻浮出介绍卡片 */
@@ -564,8 +603,12 @@
   .city-search { position: relative; }
   .city-search input {
     height: 30px; width: 130px;
-    border: 1px solid var(--border); border-radius: 999px;
-    background: var(--input-bg); color: var(--text);
+    border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255, 255, 255, .38));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--input-bg) 62%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--text);
     font-size: 12px; font-family: inherit;
     padding: 0 12px; outline: none;
     transition: border-color .15s, width .2s;
@@ -584,6 +627,19 @@
   .chip.active:hover { color: #FFFFFF; }
   .chip .cn { font-size: 10.5px; opacity: .75; margin-left: 3px; }
   .chip.more { color: var(--theme); font-weight: 500; }
+
+  /* ===== 筛选条：届数 + 截止时间（Boss直聘式紧凑 chips） ===== */
+  .filterbar {
+    display: flex; align-items: flex-start; gap: 8px 22px; flex-wrap: wrap;
+    padding: 9px 28px 11px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    transition: background .25s;
+  }
+  .fgroup { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .fchips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .flabel { font-size: 12px; font-weight: 700; color: var(--text); flex: none; }
+  .fchip { padding: 3px 11px; font-size: 11.5px; }
 
   /* 城市悬停提示浮层：显示该城市的岗位介绍 */
   .city-tip {
@@ -608,13 +664,18 @@
   .city-tip .ct-more { margin-top: 6px; font-size: 11px; color: var(--text-3); }
 
   /* 岗位卡片悬停详情浮层 */
-  .job-tip { max-width: 300px; padding: 14px 16px; }
+  .job-tip { max-width: 340px; padding: 14px 16px; }
   .job-tip .jt-title { font-size: 14.5px; font-weight: 800; color: var(--text); line-height: 1.4; }
   .job-tip .jt-role { font-size: 12.5px; color: var(--theme); font-weight: 600; margin: 3px 0 9px; }
   .job-tip .jt-sep { height: 1px; background: var(--border); margin: 9px 0; }
   .job-tip .jt-row { display: flex; gap: 8px; font-size: 12px; line-height: 1.8; }
   .job-tip .jt-k { color: var(--text-3); width: 54px; flex: none; }
   .job-tip .jt-v { color: var(--text); flex: 1; word-break: break-word; }
+  /* 公司简介正文（悬停卡新版内容） */
+  .job-tip .jt-intro { font-size: 12px; line-height: 1.95; color: #E8EAEE; }
+  .job-tip .jt-intro b { color: #FFD98E; font-weight: 700; }
+  .job-tip .jt-meta { margin-top: 10px; font-size: 10.5px; line-height: 1.7; color: #9AA0A8; }
+  .job-tip .jt-meta b { color: #9FC7FF; font-weight: 600; }
 
   /* ========== 岗位卡片网格 ========== */
   .grid {
@@ -626,20 +687,24 @@
     align-content: start;
   }
   .card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
+    /* 毛玻璃玻璃拟态：半透明底 + 背景模糊 + 边框反光（力度刻意收着，不清空配色） */
+    background: color-mix(in srgb, var(--card-bg) 76%, transparent);
+    -webkit-backdrop-filter: blur(9px) saturate(1.12);
+    backdrop-filter: blur(9px) saturate(1.12);
+    border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255, 255, 255, .38));
     border-radius: 12px;
     padding: 18px 20px 16px;
     display: flex;
     flex-direction: column;
     gap: 9px;
     box-shadow: 0 1px 3px var(--shadow);
-    transition: transform .18s, box-shadow .18s, background .25s;
+    transition: transform .18s, box-shadow .18s, background .25s, border-color .25s;
     position: relative;   /* 让置灰按钮的悬浮提示能盖住相邻卡片 */
   }
   .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 14px var(--shadow);
+    border-color: color-mix(in srgb, var(--border) 40%, rgba(255, 255, 255, .55));
   }
   .card .company { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.4; }
   .card .company .new {
@@ -1118,10 +1183,10 @@
   <button class="rail-btn" data-rail="intern"><span class="ico">🏖</span><span class="lbl">实习</span><span class="n" id="n-intern"></span></button>
   <div class="rail-spacer"></div>
   <button class="rail-feature fav-feature" id="btnFavs" title="我收藏的岗位"><span class="ico">⭐</span>我的<br>收藏<span class="n" id="n-favs"></span></button>
-  <button class="rail-feature" id="btnDiagnose" title="单击打开：AI 简历诊断"><span class="ico">📋</span>AI诊断<br>简历</button>
+  <button class="rail-feature" id="btnDiagnose" title="单击打开：AI 简历诊断"><span class="ico">💻</span>AI诊断<br>简历</button>
   <div class="rail-divider"></div>
   <button class="rail-setting" id="btnSetting"><span class="ico">⚙️</span>设置</button>
-  <button class="rail-setting" id="btnFeedback"><span class="ico">❓</span>反馈</button>
+  <button class="rail-setting" id="btnFeedback"><span class="ico">✉️</span>反馈</button>
 </nav>
 
 <!-- 设置弹层：主题切换（7 套配色） -->
@@ -1246,7 +1311,7 @@
 <!-- 右侧内容区 -->
 <div class="main">
   <div class="topbar">
-    <div class="page-title" id="pageTitle">一咝卟狗の校招情报库<span class="about-wrap"><button class="about-btn" id="aboutBtn" aria-label="网站介绍">i</button><span class="about-pop" id="aboutPop"><b>写给同样在秋招里焦虑的你</b><br>我很感同身受：焦虑大多不是来自不够努力，而是来自不确定——岗位散落在几十个公众号和网站里，刷得越多，心越慌。<br>这里只做一件小事：每天早上 8 点，把全网校招信息整理成一页看得完的清单——官网直链、截止倒计时、AI 岗位匹配，一键到位。<br>心理学的答案很简单：对抗焦虑，靠的不是更多信息，而是把不确定变成确定的一小步。<br>愿你在这里少刷一点、多投一点，等来属于你的那个 Offer。</span></span><span class="sub">开源维护人：歪艾斯阿尔</span></div>
+    <div class="page-title" id="pageTitle"><span class="brand-en">YESPUGOU'S</span><span class="brand-zh">一咝卟狗 校园情报站</span><span class="about-wrap"><button class="about-btn" id="aboutBtn" aria-label="网站介绍">i</button><span class="about-pop" id="aboutPop"><b>写给同样在秋招里焦虑的你</b><br>我很感同身受：焦虑大多不是来自不够努力，而是来自不确定——岗位散落在几十个公众号和网站里，刷得越多，心越慌。<br>这里只做一件小事：每天早上 8 点，把全网校招信息整理成一页看得完的清单——官网直链、截止倒计时、AI 岗位匹配，一键到位。<br>心理学的答案很简单：对抗焦虑，靠的不是更多信息，而是把不确定变成确定的一小步。<br>愿你在这里少刷一点、多投一点，等来属于你的那个 Offer。</span></span><span class="sub">开源维护人：歪艾斯阿尔</span></div>
     <div class="top-actions">
       <button class="all-btn" id="btnExitRec" style="display:none" title="退出 AI 推荐筛选，恢复显示全部岗位">← 退出推荐筛选</button>
       <div class="result-count" id="count"></div>
@@ -1263,11 +1328,27 @@
     <div class="city-chips" id="cityChips"></div>
   </div>
 
+  <!-- 筛选条：届数（多选）+ 投递截止时间（排序/限时），Boss直聘式紧凑横排 -->
+  <div class="filterbar" id="filterbar">
+    <div class="fgroup" id="fgGrad">
+      <span class="flabel">届数</span>
+      <span class="chip fchip" data-grad="__all__">全选</span>
+      <div class="fchips" id="gradChips"></div>
+    </div>
+    <div class="fgroup" id="fgDl">
+      <span class="flabel">截止</span>
+      <span class="chip fchip active" data-dl="">默认</span>
+      <span class="chip fchip" data-dl="asc">由早到晚</span>
+      <span class="chip fchip" data-dl="desc">由晚到早</span>
+      <span class="chip fchip" data-dl="3d">三天内截止</span>
+    </div>
+  </div>
+
   <div class="grid" id="grid"></div>
 
   <footer>
     数据来源于 GitHub 开源项目 xixicc2027（公开数据聚合，每日更新）· 投递请以各企业官方页面为准<br>
-    一咝卟狗の校招情报库 · 由 spider.py 每日自动更新
+    一咝卟狗 校园情报站 · 由 spider.py 每日自动更新
   </footer>
 </div>
 
@@ -1278,6 +1359,9 @@
   var currentType = "全部";
   var currentCity = "全部";
   var keyword = "";
+  /* 新筛选条状态：届数多选（空数组=不限）+ 截止时间（""=默认 / asc / desc / 3d） */
+  var selGrads = [];
+  var dlMode = "";
 
   var grid = document.getElementById("grid");
   var cityChips = document.getElementById("cityChips");
@@ -1371,8 +1455,10 @@
       currentCity = "全部";   // 换分类时城市也回到"全部"，避免选中的城市在新分类下不存在
       cityKeyword = "";
       citySearch.value = "";
+      selGrads = []; dlMode = "";   // 换分类时新筛选也复位
       buildTypeList();
       buildCity();
+      buildFilterbar();
       render();
     });
   });
@@ -1406,7 +1492,7 @@
     var keys = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
     var total = 0;
     keys.forEach(function (k) { total += counts[k]; });
-    var html = '<button class="type-item active" data-type="全部"><span class="dot"></span>全部<span class="n">' + total + '</span></button>';
+    var html = '<button class="type-item wide active" data-type="全部"><span class="dot"></span>全部<span class="n">' + total + '</span></button>';
     for (var k = 0; k < keys.length; k++) {
       html += '<button class="type-item" data-type="' + keys[k] + '"><span class="dot"></span>' + keys[k] + '<span class="n">' + counts[keys[k]] + '</span></button>';
     }
@@ -1416,7 +1502,7 @@
       if (railOf(jobs[e]) === currentRail && jobs[e].ended) endedCount++;
     }
     if (endedCount) {
-      html += '<button class="type-item type-ended" data-type="__ended__"><span class="dot ended-dot">❗</span>已结束<span class="n">' + endedCount + '</span></button>';
+      html += '<button class="type-item wide type-ended" data-type="__ended__"><span class="dot ended-dot">❗</span>已结束<span class="n">' + endedCount + '</span></button>';
     }
     typeList.innerHTML = html;
     document.querySelectorAll(".type-item").forEach(function (item) {
@@ -1471,6 +1557,81 @@
     var moreBtn = document.getElementById("cityMore");
     if (moreBtn) moreBtn.addEventListener("click", function () { cityExpanded = !cityExpanded; buildCity(); });
   }
+
+  /* ===== 届次 / 截止时间解析（结果缓存在岗位对象上，9439 条也只算一次） ===== */
+  function gradOf(j) {
+    if (j._grads) return j._grads;
+    var t = j.title || "";
+    var set = {};
+    /* 兼容 "2027届" "2026/2027届" "2025、2026、2027届" 等写法 */
+    var groups = t.match(/(?:19\d{2}|20\d{2})[\s\/、,，·\-]*(?:[\s\/、,，·\-]*(?:19\d{2}|20\d{2})[\s\/、,，·\-]*)*届/g) || [];
+    groups.forEach(function (s) {
+      (s.match(/(19\d{2}|20\d{2})/g) || []).forEach(function (y) { set[y] = 1; });
+    });
+    j._grads = Object.keys(set).sort();
+    return j._grads;
+  }
+  function dlTsOf(j) {
+    if (j._dl !== undefined) return j._dl;
+    var m = (j.deadline || "").match(/(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})/);
+    j._dl = m ? new Date(+m[1], +m[2] - 1, +m[3]).getTime() : null;
+    return j._dl;
+  }
+
+  /* ===== 筛选条：届数多选 + 截止时间，数量跟随当前分类统计 ===== */
+  var gradChips = document.getElementById("gradChips");
+  var filterbar = document.getElementById("filterbar");
+  function buildFilterbar() {
+    if (favMode) { filterbar.style.display = "none"; return; }
+    filterbar.style.display = "";
+    var counts = {}, untagged = 0;
+    for (var i = 0; i < jobs.length; i++) {
+      if (railOf(jobs[i]) !== currentRail) continue;
+      var gs = gradOf(jobs[i]);
+      if (gs.length) gs.forEach(function (y) { counts[y] = (counts[y] || 0) + 1; });
+      else untagged++;
+    }
+    var years = Object.keys(counts).sort();
+    var html = years.map(function (y) {
+      return '<span class="chip fchip" data-grad="' + y + '">' + y + '届<span class="cn">' + counts[y] + '</span></span>';
+    }).join("");
+    if (untagged) html += '<span class="chip fchip" data-grad="__none__">未标注届<span class="cn">' + untagged + '</span></span>';
+    gradChips.innerHTML = html;
+    /* 高亮状态：没选任何届 = "全选"亮；选了若干届则对应的亮 */
+    var allChip = document.querySelector(".fchip[data-grad='__all__']");
+    allChip.classList.toggle("active", selGrads.length === 0);
+    gradChips.querySelectorAll(".fchip").forEach(function (c) {
+      var g = c.getAttribute("data-grad");
+      c.classList.toggle("active", selGrads.indexOf(g) !== -1);
+    });
+    document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
+      c.classList.toggle("active", c.getAttribute("data-dl") === dlMode);
+    });
+    /* 届数：多选切换（gradChips 每次重建 innerHTML，监听器随元素一起换新，不会叠加） */
+    gradChips.querySelectorAll(".fchip").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var g = this.getAttribute("data-grad");
+        var idx = selGrads.indexOf(g);
+        if (idx === -1) selGrads.push(g); else selGrads.splice(idx, 1);
+        buildFilterbar();
+        render();
+      });
+    });
+  }
+  /* "全选"和"截止时间"两组 chip 是静态元素：监听器只绑一次，避免重复触发 */
+  (function bindStaticFilterChips() {
+    document.querySelector(".fchip[data-grad='__all__']").addEventListener("click", function () {
+      selGrads = []; buildFilterbar(); render();
+    });
+    document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var v = this.getAttribute("data-dl");
+        dlMode = (dlMode === v) ? "" : v;   /* 再点一次回默认 */
+        buildFilterbar();
+        render();
+      });
+    });
+  })();
 
   /* ===== 城市方框悬停提示：显示该城市当前分类下的岗位介绍 ===== */
   var cityTip = document.createElement("div");
@@ -1606,11 +1767,13 @@
   var lastFilterSig = "";
 
   function render() {
-    var sig = [currentRail, currentType, currentCity, keyword, recommendMode, favMode].join("|");
+    var sig = [currentRail, currentType, currentCity, keyword, recommendMode, favMode, selGrads.join("+"), dlMode].join("|");
     if (sig !== lastFilterSig) { renderLimit = RENDER_STEP; lastFilterSig = sig; }
 
-    /* 收藏模式下隐藏城市条（收藏跨所有城市） */
+    /* 收藏模式下隐藏城市条和筛选条（收藏跨所有城市/届数） */
     document.querySelector(".citybar").style.display = favMode ? "none" : "";
+    filterbar.style.display = favMode ? "none" : "";
+    var NOW = Date.now();
 
     var matched = [];
     for (var i = 0; i < jobs.length; i++) {
@@ -1626,6 +1789,21 @@
           if (currentType !== "全部" && (j.type || "其他") !== currentType) continue;
         }
         if (currentCity !== "全部" && j.city !== currentCity) continue;
+        /* 届数多选：岗位的届次与所选有交集才保留；"未标注届"匹配没写届次的 */
+        if (selGrads.length) {
+          var gs = gradOf(j), ok = false;
+          for (var g = 0; g < selGrads.length; g++) {
+            if (selGrads[g] === "__none__" ? gs.length === 0 : gs.indexOf(selGrads[g]) !== -1) { ok = true; break; }
+          }
+          if (!ok) continue;
+        }
+        /* 三天内截止：只留未来 0~3 天内过期的（必须写明日期） */
+        if (dlMode === "3d") {
+          var ts3 = dlTsOf(j);
+          if (ts3 === null) continue;
+          var days3 = Math.ceil((ts3 - NOW) / 86400000);
+          if (days3 < 0 || days3 > 3) continue;
+        }
       }
       if (!matchKeyword(j)) continue;
       matched.push(i);
@@ -1634,6 +1812,14 @@
     var active = [], endedList = [];
     for (var a = 0; a < matched.length; a++) {
       (jobs[matched[a]].ended ? endedList : active).push(matched[a]);
+    }
+    /* 截止时间排序：由早到晚 / 由晚到早；"三天内截止"顺手按由早到晚排，最急的排最前 */
+    if (dlMode === "asc" || dlMode === "desc" || dlMode === "3d") {
+      var dir = dlMode === "desc" ? -1 : 1;
+      var withTs = [], noTs = [];
+      for (var w = 0; w < active.length; w++) { (dlTsOf(jobs[active[w]]) !== null ? withTs : noTs).push(active[w]); }
+      withTs.sort(function (x, y) { return dir * (dlTsOf(jobs[x]) - dlTsOf(jobs[y])); });
+      active = withTs.concat(noTs);
     }
     var ordered = active.concat(endedList);
 
@@ -1766,8 +1952,10 @@
     recommendSet = [];
     currentType = "全部";
     currentCity = "全部";
+    selGrads = []; dlMode = "";
     buildTypeList();
     buildCity();
+    buildFilterbar();
     render();
   });
   var cityWrap = document.querySelector(".city-search");
@@ -1894,28 +2082,212 @@
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  /* ===== 公司简介库：整理自公开资料（成立时间/性质/规模/行业地位），悬停卡片用 =====
+     没收录的公司会自动生成一条兜底简介，不会重复卡片上已有的信息 */
+  var COMPANY_PROFILES = {
+    "腾讯": "1998年成立于深圳，世界500强互联网巨头，员工超10万人，微信+QQ月活超13亿，游戏与社交业务全球领先。",
+    "阿里巴巴": "1999年成立于杭州，世界500强，电商与云计算巨头，淘宝天猫+阿里云双引擎，员工超20万人。",
+    "字节跳动": "2012年成立于北京，抖音/TikTok母公司，全球估值最高的独角兽之一，员工超11万人，推荐算法与大模型双强。",
+    "百度": "2000年成立于北京，美股港股上市，AI技术储备深厚的搜索巨头，文心大模型+Apollo自动驾驶是两大看点。",
+    "美团": "2010年成立于北京，世界500强，本地生活绝对龙头，外卖市场份额第一，业务覆盖到店、酒旅、社区团购。",
+    "华为": "1987年成立于深圳，世界500强前百，员工约20万人，ICT（通信/终端/云）全球龙头，研发投入常年全球前五。",
+    "小米": "2010年成立于北京，世界500强，智能手机出货全球前三，造车SU7爆火，员工约4万人。",
+    "荣耀": "2020年从华为独立，深圳，国内智能手机头部品牌，AI PC与折叠屏是新的增长点。",
+    "vivo": "步步高系品牌，总部东莞，全球智能手机出货前五，自研影像芯片与X系列旗舰是招牌。",
+    "京东": "1998年成立于北京，世界500强前50，自营电商+自建物流模式，员工超50万人。",
+    "网易": "1997年成立于杭州，老牌互联网大厂，游戏业务营收全球前列，有道、严选、云音乐多线开花。",
+    "滴滴": "2012年成立于北京，出行平台绝对龙头，网约车市占率第一，美股港股两地上市。",
+    "快手": "2011年成立于北京，短视频双雄之一，港交所上市，直播电商与可灵AI视频大模型是亮点。",
+    "小红书": "2013年成立于上海，月活超3亿的生活方式社区，种草经济鼻祖，电商与本地生活加速布局。",
+    "DeepSeek": "2023年成立于杭州，幻方量化旗下AI实验室，DeepSeek-V3/R1以极低训练成本比肩顶级大模型，全球爆红。",
+    "上海人工智能实验室": "2020年成立于上海，国家级AI科研平台，书生（InternLM）系列大模型与OpenMMLab开源生态出品方。",
+    "阶跃星辰": "2023年成立于上海，Step系列多模态大模型公司，大模型独角兽，聚焦C端智能助手与API服务。",
+    "群核科技": "2011年成立于杭州，酷家乐母公司，全球最大的云设计软件平台之一，GPU集群渲染技术领先。",
+    "科大讯飞": "1999年成立于合肥，A股AI语音龙头，星火大模型第一梯队，教育、办公场景落地最深。",
+    "中兴通讯": "1985年成立于深圳，A股+港股上市的通信设备巨头，5G标准必要专利全球前五，服务器与算力第二曲线。",
+    "中兴微电子": "中兴通讯旗下芯片设计平台，国内头部通信芯片设计公司，承担集团自研芯片主力。",
+    "大疆": "2006年成立于深圳，全球无人机绝对霸主，消费级市占率约七成，员工约1.4万人，影像与机器人多点开花。",
+    "海康威视": "2001年成立于杭州，全球安防监控第一，A股创业板市值长期前十，员工约5.8万人，AIoT转型中。",
+    "大华股份": "2001年成立于杭州，全球安防第二，A股上市，智慧物联（AIoT）与海外业务增速快。",
+    "深信服": "2000年成立于深圳，创业板上市的网络安全龙头之一，VPN/防火墙市占率靠前，云计算第二曲线。",
+    "安恒信息": "2007年成立于杭州，科创板网络安全企业，云安全、大数据安全与安全服务能力突出。",
+    "寒武纪": "2016年成立于北京，科创板AI芯片第一股，云端训练/推理芯片用于大模型算力集群。",
+    "摩尔线程": "2020年成立于北京，国产GPU独角兽，全功能GPU面向AI计算与图形渲染，科创板上市在途。",
+    "长江存储": "2016年成立于武汉，国产NAND闪存龙头，晶圆级3D NAND技术自主，国家级存储基地。",
+    "兆易创新": "2005年成立于北京，A股存储芯片设计龙头，NOR Flash全球前三，MCU业务国内领先。",
+    "虹软科技": "视觉AI算法龙头，科创板首批上市公司，手机拍照算法授权覆盖主流安卓品牌。",
+    "乐鑫科技": "2008年成立于上海，科创板上市，Wi-Fi MCU芯片出货量全球第一，物联网连接芯片主力。",
+    "诺瓦星云": "北京，LED显示控制系统龙头，科创板上市，全球大型活动大屏（含春晚）背后的控制方案商。",
+    "联发科技": "1997年成立于中国台湾新竹，全球第四大IC设计公司，智能手机芯片出货量全球第一。",
+    "德州仪器": "1930年成立于美国达拉斯，全球模拟芯片龙头，产品线超8万种，工业与汽车市场主力。",
+    "索尼": "1946年成立于日本东京，世界500强，CMOS影像传感器全球第一，PlayStation游戏生态全球领先。",
+    "戴尔科技": "1984年成立于美国，世界500强，全球PC出货前三，企业级服务器与存储主力厂商。",
+    "特斯拉": "2003年成立，世界500强，全球纯电动车标杆，上海超级工厂是其最重要的制造基地之一。",
+    "比亚迪": "1995年成立于深圳，世界500强，新能源汽车全球销量第一，员工约90万人，电池与半导体自研自供。",
+    "蔚来": "2014年成立，美/港/新三地上市，高端智能电动车代表，换电模式独树一帜，员工约3万人。",
+    "理想汽车": "2015年成立，美股港股上市，新势力中最先实现盈利，增程式家庭SUV策略极其成功。",
+    "小鹏汽车": "2014年成立于广州，美股港股上市，智能辅助驾驶第一梯队，MONA系列走量后月交付创新高。",
+    "零跑汽车": "2015年成立于杭州，港股上市，全域自研的性价比电动车代表，交付量稳居新势力前列。",
+    "岚图汽车": "东风集团旗下高端电动品牌，央企背景，SUV/MPV/轿车全布局，岚图知音、梦想家为主力。",
+    "宇通集团": "1963年起家于郑州，全球最大客车制造商之一，A股上市，客车出口量全国第一。",
+    "奇瑞捷豹路虎": "2012年成立于常熟，奇瑞与捷豹路虎的合资整车企业，豪华品牌国产化制造基地。",
+    "中国一汽": "1953年成立于长春，共和国汽车工业长子，央企，世界500强，红旗品牌是自主高端门面。",
+    "东风柳汽": "东风集团子公司，位于柳州，商用车+乘用车双线，乘龙卡车与风行系列是主力产品。",
+    "宁德时代": "2011年成立于福建宁德，世界500强，动力电池全球市占率连续多年第一（约37%），员工约12万人。",
+    "阳光电源": "1997年成立于合肥，A股上市，光伏逆变器出货量全球第一，储能业务全球前列。",
+    "正浩EcoFlow": "2017年成立于深圳，便携储能头部品牌，独角兽企业，产品远销100+国家。",
+    "汇川技术": "2003年成立于深圳，创业板工控自动化龙头，变频器/伺服国产第一，新能源汽车电驱业务高增。",
+    "九号公司": "2012年成立于北京，智能滑板车/平衡车全球龙头，科创板CDR第一股，割草机器人出海爆卖。",
+    "拓竹科技": "2019年成立于深圳，消费级3D打印机全球热销品牌，出海硬件独角兽。",
+    "普渡机器人": "2016年成立于深圳，商用配送机器人全球出货第一，产品进入60+国家和地区。",
+    "智元机器人": "2023年成立于上海，人形机器人独角兽，稚晖君（彭志辉）联合创办，灵犀/远征系列量产在即。",
+    "元戎启行": "2019年成立于深圳，L4级自动驾驶公司，与长城等车企合作量产城市NOA方案。",
+    "轻舟智航": "2019年成立于北京，自动驾驶方案商，专注城区NOA中高阶智驾量产，多个车企定点。",
+    "佑驾创新": "2014年成立于深圳，智能驾驶方案供应商，港股上市，主打性价比智驾量产落地。",
+    "超聚变": "2021年成立于郑州，承接原华为x86服务器业务，FusionServer国内服务器市场份额头部。",
+    "华勤技术": "2005年成立于上海，A股上市，全球智能硬件ODM龙头，手机/笔电/服务器代工三线并进。",
+    "TP-Link联洲": "普联技术，深圳，全球无线路由器市占率第一，网络通讯设备出海主力。",
+    "海尔智家": "1984年成立于青岛，世界500强，全球白色家电第一梯队，A+H+D三地上市。",
+    "海信集团": "1969年成立于青岛，家电与显示技术巨头，电视出货量全球第二，欧洲杯/世界杯官方赞助商。",
+    "京东方": "1993年成立于北京，A股科技龙头，LCD面板全球市占率第一，柔性OLED加速追赶三星。",
+    "新凯来": "深圳国资旗下半导体设备平台，2023年登场即爆红，刻蚀/薄膜/量测设备全线布局。",
+    "美的集团": "1968年成立于佛山，世界500强，全球家电营收第一，机器人（库卡）与楼宇科技第二曲线。",
+    "格力电器": "1991年成立于珠海，A股上市，家用空调全球头部，多元化布局工业制品与新能源。",
+    "歌尔股份": "2001年成立于潍坊，A股+港股上市，声学器件与VR代工全球龙头，AirPods/Quest核心供应商。",
+    "立讯精密": "2004年成立于东莞，A股上市，全球消费电子精密制造龙头，苹果产业链核心代工厂。",
+    "韦尔股份": "2007年成立于上海，A股半导体设计龙头，豪威科技CIS图像传感器全球前三。",
+    "米哈游": "2012年成立于上海，原神全球现象级爆款，员工约5000人，人均产出吊打同行，技术宅文化浓。",
+    "莉莉丝游戏": "2013年成立于上海，出海游戏头部，剑与远征、万国觉醒等爆款全球长青。",
+    "鹰角网络": "2019年成立于上海，明日方舟系列开发商，二次元赛道头部，塞雷娅同款美术风格鲜明。",
+    "散爆网络": "上海，少女前线系列研发商，云图计划与少前2持续运营，二次元战棋/枪战细分头部。",
+    "完美世界": "2004年成立于北京，A股上市，游戏+影视双主业，诛仙/幻塔等IP长线运营。",
+    "搜狐畅游": "搜狐旗下游戏公司，美股上市，天龙八部IP现金牛，端游时代传奇厂商。",
+    "多益网络": "2006年成立于广州，神武系列与梦幻西游类回合制MMO细分头部，低调多金。",
+    "点点互动": "世纪华通旗下出海游戏品牌，Whiteout Survival全球SLG收入榜第一，出海吸金王。",
+    "FunPlus": "2010年创立的全球化游戏公司，State of Survival、King of Avalon等SLG出海爆款常青。",
+    "万兴科技": "2003年成立于深圳，A股上市，Filmora等创意软件远销全球200+国家，出海软件标杆。",
+    "金山云": "金山集团旗下云服务商，美股港股上市，视频云与行业云为主力，WPS同门。",
+    "广联达": "1998年成立于北京，A股上市，建筑数字化（造价BIM）绝对龙头，员工约万人。",
+    "同花顺": "1995年成立于杭州，A股上市，互联网金融信息服务龙头，炒股软件国民级应用，AI金融大模型落地快。",
+    "东方财富": "2005年成立于上海，A股上市，互联网券商龙头，天天基金+股吧流量护城河。",
+    "软通动力": "2001年成立于北京，A股上市，IT服务与外包龙头，员工约9万人，华为核心合作伙伴。",
+    "中科曙光": "国产高性能计算龙头，A股上市，中科院背景，算力基础设施国家队。",
+    "迈瑞医疗": "1991年成立于深圳，中国最大医疗器械企业，A股创业板市值龙头，监护仪全球前三，员工约1.7万人。",
+    "开立医疗": "2002年成立于深圳，创业板上市，国产超声与软性内镜头部，高端彩超打破进口垄断。",
+    "圣湘生物": "2008年成立于长沙，科创板上市，分子诊断龙头，核酸检测时代全国产化主力。",
+    "金斯瑞": "2002年成立于南京，港股上市，基因合成全球领先，生命科学服务+传奇生物CAR-T双引擎。",
+    "华润双鹤": "华润集团旗下医药平台，央企背景，A股上市，慢病用药与输液领域头部。",
+    "新和成": "浙江新昌，A股上市，维生素A/E全球前二，精细化工与蛋氨酸第二曲线。",
+    "金发科技": "1993年成立于广州，A股上市，全球前列的改性塑料企业，可降解塑料与特种工程材料增量快。",
+    "康冠科技": "1995年成立于深圳，A股上市，智能电视/交互平板ODM全球头部，显示器出海主力。",
+    "海天味业": "1955年（前身溯至清代）发源于佛山，A股调味品之王，酱油市占率全国第一，A+H上市。",
+    "牧原": "1992年成立于河南南阳，A股上市，全球最大生猪养殖企业，员工约14万人，自繁自养一体化模式。",
+    "康师傅": "1992年成立于天津，港股上市，方便面与即饮茶市占率全国第一，百事中国区合作方。",
+    "徐福记": "1992年成立于东莞，中国糖果龙头，年糖市场市占率第一，现为雀巢全资品牌。",
+    "迪卡侬": "1976年成立于法国，全球最大体育用品零售商之一，全产业链自营模式，在华门店200+。",
+    "欧莱雅": "1909年成立于法国巴黎，世界500强，全球第一大化妆品集团，欧莱雅中国是其全球第二大市场。",
+    "路易威登": "1854年创立于巴黎，LVMH集团核心品牌，全球最大奢侈品集团旗下第一现金牛。",
+    "FILA": "1911年创立于意大利，2009年被安踏收购中国区业务后翻盘，运动时尚细分头部。",
+    "亚玛芬": "1950年创立，始祖鸟/萨洛蒙/威尔胜母公司，美股上市，安踏集团体育用品帝国的海外主力。",
+    "壳牌中国": "世界500强前列的全球能源巨头，在华布局超百年，润滑油市占率国际品牌第一。",
+    "红星美凯龙": "1986年创立，家居零售连锁龙头，全国400+商场，港股+A股上市。",
+    "万物云": "万科旗下物业服务平台，港股上市，住宅物业+商企+城市服务三线，蝶城战略重塑社区服务。",
+    "中粮集团": "1949年成立于北京，央企，世界500强前列，国际大粮商，福临门/长城葡萄酒/中粮糖业出品方。",
+    "中国铁建地产": "中国铁建旗下地产平台，央企背景，全国布局60+城市，西南市场尤其强势。",
+    "中建八局二公司": "中建八局骨干工程局，央企背景，总承包特级资质，山东及华东区域基建主力。",
+    "中冶南方": "中冶集团旗下，武汉，央企背景，钢铁工程国家队，热轧/冷轧成套技术全球输出。",
+    "中国建研院": "1953年成立于北京，央企，建筑业最权威的综合性研究机构，主编大半本国家建筑规范。",
+    "上海电气集团": "百年装备制造国企，上海国资背景，风电/核电/电梯（三菱）多线，能源装备国家队。",
+    "潍柴动力": "1946年起家于潍坊，A+H上市，柴油发动机全球头部，山东重工旗下，谭旭光神话缔造者。",
+    "中国航发商发": "中国航发集团子公司，上海，央企，国产大飞机发动机长江CJ-1000A的研制主体。",
+    "中国长征火箭": "航天科技集团旗下，央企，长征系列运载火箭总体单位，商业航天发射主力。",
+    "航空工业通飞": "中航工业旗下通用航空平台，央企，西锐/领航AG600水陆两栖飞机出品方。",
+    "西安近代化学研究所": "兵器工业集团204所，军工研究所，含能材料与爆炸技术国家核心研究单位。",
+    "上海空间电源研究所": "航天科技集团811所，航天器与导弹电源专业研究所，空间电源国家队。",
+    "招商银行": "1987年成立于深圳，世界500强，股份制商业银行零售之王，A股+港股上市，员工约10万人。",
+    "宁波银行": "1997年成立，A股上市城商行标杆，不良率常年上市行最低，长三角小微业务见长。",
+    "广州银行": "1996年成立于广州，广州国资背景城商行，大湾区网点密集，IPO排队中。",
+    "华润银行": "华润集团旗下城市商业银行，总部珠海，央企金融板块成员，大湾区对公业务见长。",
+    "苏商银行": "2017年成立于南京，江苏首家民营银行，数字银行模式，消费金融与小微贷款线上化。",
+    "招商证券": "招商局集团旗下券商，央企背景，A+H上市，投行与财富管理头部。",
+    "国投证券": "国投集团旗下券商（原安信证券），央企背景，全牌照综合券商，总部上海。",
+    "长城证券": "央企华能集团旗下券商，A股上市，金融科技与电力能源行业研究特色鲜明。",
+    "第一创业证券": "深圳国资背景券商，A股上市，固定收益与投行特色业务见长。",
+    "万联证券": "广州国资旗下券商，大湾区本土综合券商，财富管理与固定收益为主力。",
+    "泰康资产": "泰康保险旗下资管公司，管理资产规模超3.4万亿元，国内头部保险资管。",
+    "泰康之家": "泰康保险旗下养老社区品牌，全国30+城市布局，医养结合高端养老连锁。",
+    "阳光保险": "2005年成立于北京，港股上市综合保险集团，产寿险+资管全牌照。",
+    "汇丰环球": "汇丰银行的全球服务支持分支，世界500强银行的核心后台与科技基地，广州/上海团队大。",
+    "毕马威": "四大会计师事务所之一，全球员工约27万人，审计、税务、咨询三大业务线，中国区20+办公室。",
+    "致同": "国际知名会计网络Grant Thornton中国成员所，内资大所第一梯队，全国20+办公室。",
+    "中汇会计师事务所": "内资会计师事务所头部，总部杭州，IPO审计项目数量常年内资所前列。",
+    "普华永道": "四大会计师事务所之一，全球员工约37万人，Big4营收常年第一。",
+    "德勤": "四大会计师事务所之一，全球员工约46万人，审计与咨询规模均为行业头部。",
+    "安永": "四大会计师事务所之一，全球员工约40万人，Audit/EY-Parthenon咨询双线发展。",
+    "春秋航空": "2004年成立于上海，A股上市，中国最大低成本航空公司，机队全空客A320系。",
+    "圆通速递": "2000年成立于上海，A股上市快递龙头之一，国际化（圆通速递国际）与航空机队布局领先。",
+    "德邦快递": "1996年成立于上海，大件快递开创者，现属京东物流体系，零担运输全国头部。",
+    "货拉拉": "2013年创立，同城货运平台市占率第一，业务覆盖全球400+城市，Lalatech港股上市在途。",
+    "21世纪经济报道": "南方财经全媒体集团旗下全国性财经日报，财经新闻领域第一梯队。",
+    "南方财经全媒体集团": "广东省属财经媒体集团，21财经、南方财经数据与智库一体化运作。",
+    "人民网": "人民日报社旗下，A股上市，中央重点新闻网站国家队，内容+数据+政务多线发展。",
+    "中国日报": "国家英文日报，中央媒体，国际传播主力军，全球读者覆盖第一梯队。",
+    "北京新东方": "1993年成立，教育培训龙头新东方总部，美股港股上市，出国考试培训金字招牌。",
+    "广州新东方": "新东方华南区域总部，出国留学+成人培训+文旅多线布局。",
+    "西安新东方": "新东方西北区域总部，教培+直播电商（东方甄选模式）本地化运营。",
+    "高途": "2014年成立，美股上市在线教育公司，考研/成人/中小学素质培训转型成功。",
+    "作业帮": "2015年成立，在线教育头部，作业帮APP工具流量全国第一，硬件学习机第二曲线。",
+    "有道领世": "网易有道旗下高中学科培训品牌，依托有道词典与AI技术底座。"
+  };
+  /* 公司简介：精确匹配 → 前缀匹配（处理"歌尔"/"歌尔股份"这类异名同司） */
+  function companyIntroOf(name) {
+    if (COMPANY_PROFILES[name]) return COMPANY_PROFILES[name];
+    for (var k in COMPANY_PROFILES) {
+      if (k.length >= 2 && name.length >= 2 && (name.indexOf(k) === 0 || k.indexOf(name) === 0)) return COMPANY_PROFILES[k];
+    }
+    return "";
+  }
+  /* 该公司在站内的官方校招域名（取任意一条 official_url 的域名） */
+  function officialDomainOf(company) {
+    for (var i = 0; i < jobs.length; i++) {
+      if (jobs[i].company === company) {
+        var u = officialUrlOf(jobs[i]);
+        if (u) {
+          try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; }
+        }
+      }
+    }
+    return "";
+  }
+
   /* 鼠标在卡片上看不到浮层时（例如触屏），点一下也能看 */
   function fillJobTip(j) {
-    var rows = "";
-    rows += '<div class="jt-row"><span class="jt-k">城市</span><span class="jt-v">' + (j.city === "未公布" ? "以招聘公告为准" : esc(j.city)) + '</span></div>';
-    rows += '<div class="jt-row"><span class="jt-k">行业</span><span class="jt-v">' + esc(j.type || "其他") + '</span></div>';
-    if (j.batch) rows += '<div class="jt-row"><span class="jt-k">批次</span><span class="jt-v">' + esc(j.batch) + '</span></div>';
-    var dirs = (j.positions && j.positions.length) ? j.positions.join(" / ") : (j.program || "");
-    if (dirs) rows += '<div class="jt-row"><span class="jt-k">招聘方向</span><span class="jt-v">' + esc(dirs) + '</span></div>';
-    rows += '<div class="jt-row"><span class="jt-k">截止</span><span class="jt-v">' + esc(j.deadline) + '</span></div>';
-    rows += '<div class="jt-row"><span class="jt-k">更新</span><span class="jt-v">' + esc(j.updated || "—") + '</span></div>';
-    var ch = j.delivery_channel || (officialUrlOf(j) ? "官网" : "其他");
-    var chDesc;
-    if (j.ended) chDesc = "该岗位已过截止日期，投递通道已关闭";
-    else if (officialUrlOf(j)) chDesc = "官网投递（点右下角「直达官网投递」）";
-    else if (infoUrlOf(j)) chDesc = (ch === "邮箱" ? "邮箱投递" : "公众号 / 公告投递") + "，暂无官网链接（点右下角「查看招聘公告」了解报名方式）";
-    else if (isWechatChannel(j)) chDesc = "公众号投递，报名方式在微信公众号（点右下角「公众号搜索」一键查找）";
-    else chDesc = "公众号 / 邮箱投递，暂无官网链接（点右下角「搜索招聘入口」一键查找）";
-    rows += '<div class="jt-row"><span class="jt-k">投递</span><span class="jt-v">' + chDesc + '</span></div>';
+    /* 悬停卡 = 公司简介卡：不再重复卡片上已有的岗位信息 */
+    var intro = companyIntroOf(j.company || "");
+    var body;
+    if (intro) {
+      /* 高亮关键标签：世界500强 / 央企 / 独角兽 / 第一 */
+      var h = esc(intro)
+        .replace(/世界500强/g, "<b>世界500强</b>")
+        .replace(/央企/g, "<b>央企</b>")
+        .replace(/独角兽/g, "<b>独角兽</b>")
+        .replace(/(全球第一|全球前三|全球前五|全球头部|全球前列|第一梯队)/g, "<b>$1</b>");
+      body = '<div class="jt-intro">' + h + '</div>';
+    } else {
+      var cnt = 0, cities = {};
+      for (var i = 0; i < jobs.length; i++) {
+        if (jobs[i].company === j.company) { cnt++; cities[jobs[i].city] = 1; }
+      }
+      var cn = Object.keys(cities).filter(function (c) { return c !== "未公布"; }).length;
+      body = '<div class="jt-intro">站内已收录该公司 <b>' + cnt + '</b> 条在招信息，覆盖 ' + (cn || "—") + ' 个城市，所属领域为「' + esc(j.type || "其他") + '」。<br>这家公司的详细背景还在整理中，投递前建议先到官方渠道核实信息。</div>';
+    }
+    var domain = officialDomainOf(j.company || "");
+    var meta = '<div class="jt-meta">';
+    if (domain) meta += '校招官网：<b>' + esc(domain) + '</b> · ';
+    meta += '资料整理自公开信息，以官方公告为准</div>';
     jobTip.innerHTML =
       '<div class="jt-title">' + esc(j.company) + (j.isNew ? ' <span class="new">NEW</span>' : '') + '</div>' +
-      '<div class="jt-role">' + esc(j.title) + '</div>' +
-      '<div class="jt-sep"></div>' + rows;
+      '<div class="jt-sep"></div>' + body + meta;
   }
 
   function placeTip(tip, rect) {
@@ -2005,6 +2377,7 @@
     });
   })();
   buildCity();
+  buildFilterbar();
   buildTypeList();
   render();
 
