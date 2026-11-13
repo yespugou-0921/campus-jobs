@@ -190,6 +190,7 @@
     100% { opacity: 0; transform: translateY(-48px) translateX(12px) scale(1); }
   }
   .rail-btn {
+    position: relative;
     width: 52px;
     padding: 9px 0 8px;
     margin-top: 10px;
@@ -211,6 +212,29 @@
   .rail-btn:hover { background: var(--hover-bg); color: var(--text); }
   .rail-btn.active { background: var(--theme); color: #FFFFFF; }
   .rail-btn.active .n { opacity: .85; }
+  /* 斜上方角标（秋招 HOT🔥 / 春招 上新中） */
+  .rail-badge {
+    position: absolute; top: -7px; right: -10px;
+    font-size: 9px; line-height: 1;
+    padding: 3px 6px; border-radius: 999px;
+    font-weight: 700; letter-spacing: 0;
+    color: #FFFFFF; white-space: nowrap;
+    z-index: 2; pointer-events: none;
+    transform: rotate(8deg);
+  }
+  .rail-badge.hot {
+    background: linear-gradient(135deg, #FF4E3A, #FF8A3C);
+    box-shadow: 0 2px 8px rgba(255, 78, 58, .45);
+    animation: hot-pulse 2s ease-in-out infinite;
+  }
+  .rail-badge.fresh {
+    background: linear-gradient(135deg, #2BB673, #6BCB95);
+    box-shadow: 0 2px 8px rgba(43, 182, 115, .35);
+  }
+  @keyframes hot-pulse {
+    0%, 100% { transform: rotate(8deg) scale(1); }
+    50% { transform: rotate(8deg) scale(1.12); }
+  }
   .rail-spacer { flex: 1; }
   .rail-setting {
     width: 52px;
@@ -1041,8 +1065,8 @@
 <!-- 第一列：图标栏 -->
 <nav class="rail">
   <div class="logo">🐑</div>
-  <button class="rail-btn active" data-rail="autumn"><span class="ico">🎓</span><span class="lbl">秋招</span><span class="n" id="n-autumn"></span></button>
-  <button class="rail-btn" data-rail="spring"><span class="ico">🏛️</span><span class="lbl">春招</span><span class="n" id="n-spring"></span></button>
+  <button class="rail-btn active" data-rail="autumn"><span class="rail-badge hot">HOT🔥</span><span class="ico">🎓</span><span class="lbl">秋招</span><span class="n" id="n-autumn"></span></button>
+  <button class="rail-btn" data-rail="spring"><span class="rail-badge fresh">上新中</span><span class="ico">🏛️</span><span class="lbl">春招</span><span class="n" id="n-spring"></span></button>
   <button class="rail-btn" data-rail="intern"><span class="ico">🏖</span><span class="lbl">实习</span><span class="n" id="n-intern"></span></button>
   <div class="rail-spacer"></div>
   <button class="rail-feature fav-feature" id="btnFavs" title="我收藏的岗位"><span class="ico">⭐</span>我的<br>收藏<span class="n" id="n-favs"></span></button>
