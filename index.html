@@ -1143,7 +1143,8 @@
   function isSpring(j) {
     if (isIntern(j)) return false;
     var s = (j.title || "") + (j.batch || "");
-    return s.indexOf("春") !== -1;
+    /* 必须是"春招/春季"才算春招；避免"长春分行"这类城市名里的"春"字误判 */
+    return s.indexOf("春招") !== -1 || s.indexOf("春季") !== -1;
   }
   function railOf(j) {
     if (isIntern(j)) return "intern";
