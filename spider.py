@@ -448,7 +448,16 @@ def hueun_industry(v):
         return "高校/事业单位"
     if "制造" in s:
         return "制造业"
-    return s[:12]
+    # 混合大类（商务服务/咨询/财务/审计/税务/人力/法律/翻译/知识产权）单独归名，避免超长
+    if any(k in s for k in ("知识产权", "翻译", "人力资源", "人力")):
+        return "商务服务/咨询/财务/审计"
+    # 兜底：超长行业名按斜杠边界截断，绝不出现"审计"被砍成"审"这种半截词
+    if len(s) > 14:
+        cut = s[:14]
+        if "/" in cut:
+            cut = cut[: cut.rfind("/")]
+        return cut
+    return s
 
 
 def convert_hueun(raw_jobs, today):
@@ -521,7 +530,7 @@ def convert_hueun(raw_jobs, today):
             "positions": positions,
             "program": str(item.get("备注/提示") or "")[:30],
             "city": hueun_city(item.get("工作地点")),
-            "type": industry[:12],
+            "type": industry,
             "batch": batch,
             "deadline": deadline,
             "updated": updated_iso,
