@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YESPUGOU'S 一咝卟狗 校招岗位速递情报站</title>
+<!-- 品牌英文字体：Fraunces 900（Paradiso/Cooper Black 风格的圆润衬线粗体）；loli.net 是国内可直连的字体镜像 -->
+<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.loli.net/css2?family=Fraunces:opsz,wght@9..144,900&display=swap">
 <style>
   /* ========== 主题变量：浅色模式（默认） ========== */
   :root {
@@ -273,6 +276,21 @@
 
   /* 搜索框自动补全下拉 */
   .search-box, .city-search { position: relative; }
+  /* 搜索框一键清除小 ×：输入框有内容才出现 */
+  .clear-btn {
+    position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
+    width: 18px; height: 18px; line-height: 16px;
+    border: none; border-radius: 50%;
+    background: var(--tag-default-bg, rgba(128,128,128,.18));
+    color: var(--text-2);
+    font-size: 13px; font-family: inherit;
+    padding: 0; cursor: pointer;
+    text-align: center;
+    transition: background .15s, color .15s;
+  }
+  .clear-btn:hover { background: var(--theme); color: #fff; }
+  .clear-sm { width: 15px; height: 15px; line-height: 13px; font-size: 11px; right: 6px; }
+  #searchInput, #citySearch { padding-right: 30px; }
   .ac-list {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
     background: var(--card-bg); border: 1px solid var(--border);
@@ -445,22 +463,23 @@
     /* 标题专用字体：圆润体（幼圆/圆体系），软萌但不幼稚；没有就平滑回退到黑体 */
     font-family: "Yuanti SC", "YouYuan", "幼圆", "STYuanti", "Hiragino Maru Gothic ProN", "Quicksand", "Varela Round", "Microsoft YaHei", sans-serif;
   }
-  /* 两行品牌 logo：上行英文粗黑体（参考 FIRST STAR 海报的重磅无衬线），下行中文站名 */
+  /* 两行品牌 logo：上行英文（Paradiso 海报那种圆润衬线粗体 Fraunces/Cooper），下行中文站名 */
   .page-title .brand-en {
     display: block;
-    font-family: "Archivo Black", "Arial Black", "Avenir Heavy", "Inter", sans-serif;
+    font-family: "Fraunces", "Cooper Black", "Recoleta", "Georgia", serif;
     font-weight: 900;
-    font-size: 21px;
-    line-height: 1.05;
-    letter-spacing: 1px;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-size: 27px;
+    line-height: 1.08;
+    letter-spacing: .5px;
     color: var(--text);
   }
-  /* YESPUGOU'S 后面的小标：CAMPUS RADAR */
+  /* YESPUGOU'S 后面的小标：CAMPUS RADAR（同品牌衬线字体家族） */
   .page-title .brand-tag {
-    font-family: "Inter", "Segoe UI", sans-serif;
-    font-weight: 700;
-    font-size: 9.5px;
-    letter-spacing: 2.5px;
+    font-family: "Fraunces", "Cooper Black", "Georgia", serif;
+    font-weight: 900;
+    font-size: 10.5px;
+    letter-spacing: 2px;
     color: var(--theme);
     border: 1px solid color-mix(in srgb, var(--theme) 45%, transparent);
     border-radius: 999px;
@@ -1317,6 +1336,7 @@
 <aside class="col2">
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="搜索岗位 / 公司名">
+    <button class="clear-btn" id="clearSearch" title="清空搜索" style="display:none">×</button>
   </div>
   <div class="col2-title">岗位分类</div>
   <div class="type-list" id="typeList"></div>
@@ -1339,12 +1359,19 @@
   <!-- 城市筛选条：横排标签，放不下再展开 -->
   <div class="citybar">
     <span class="citybar-label">城市</span>
-    <div class="city-search"><input type="text" id="citySearch" placeholder="搜索城市"></div>
+    <div class="city-search"><input type="text" id="citySearch" placeholder="搜索城市"><button class="clear-btn clear-sm" id="clearCity" title="清空" style="display:none">×</button></div>
     <div class="city-chips" id="cityChips"></div>
   </div>
 
-  <!-- 筛选条：投递截止时间（排序/限时），Boss直聘式紧凑横排 -->
+  <!-- 筛选条：届数（多选）+ 投递截止时间（排序/限时），Boss直聘式紧凑横排 -->
   <div class="filterbar" id="filterbar">
+    <div class="fgroup" id="fgGrad">
+      <span class="flabel">届数</span>
+      <span class="chip fchip active" data-grad="__all__">全部</span>
+      <span class="chip fchip" data-grad="2027">2027届</span>
+      <span class="chip fchip" data-grad="2028">2028届</span>
+      <span class="chip fchip" data-grad="__other__">其他</span>
+    </div>
     <div class="fgroup" id="fgDl">
       <span class="flabel">截止</span>
       <span class="chip fchip active" data-dl="">默认</span>
@@ -1367,9 +1394,10 @@
   var jobs = JOBS || [];
   var currentRail = "autumn";   // autumn=秋招  spring=春招  intern=实习
   var currentType = "全部";
-  var currentCity = "全部";
+  var selCities = [];   /* 城市多选：空数组=不限 */
   var keyword = "";
-  /* 新筛选条状态：截止时间（""=默认 / asc / desc / 3d） */
+  /* 新筛选条状态：届数多选（空数组=不限）+ 截止时间（""=默认 / asc / desc / 3d） */
+  var selGrads = [];
   var dlMode = "";
 
   var grid = document.getElementById("grid");
@@ -1461,9 +1489,11 @@
       btn.classList.add("active");
       currentRail = btn.getAttribute("data-rail");
       currentType = "全部";
-      currentCity = "全部";   // 换分类时城市也回到"全部"，避免选中的城市在新分类下不存在
+      selCities = [];   // 换分类时城市也回到"全部"，避免选中的城市在新分类下不存在
       cityKeyword = "";
       citySearch.value = "";
+      clearCity.style.display = "none";
+      selGrads = [];   // 换分类时届数筛选也复位
       dlMode = "";   // 换分类时截止时间筛选也复位
       buildTypeList();
       buildCity();
@@ -1544,10 +1574,10 @@
     var filtered = keys.filter(function (k) { return !kw || k.toLowerCase().indexOf(kw) !== -1; });
     var LIMIT = 9;
     var shown = (cityExpanded || filtered.length <= LIMIT) ? filtered : filtered.slice(0, LIMIT);
-    var html = '<span class="chip' + (currentCity === "全部" ? " active" : "") + '" data-city="全部">全部<span class="cn">' + railTotal + '</span></span>';
+    var html = '<span class="chip' + (selCities.length === 0 ? " active" : "") + '" data-city="全部">全部<span class="cn">' + railTotal + '</span></span>';
     for (var k = 0; k < shown.length; k++) {
       var c = shown[k];
-      html += '<span class="chip' + (currentCity === c ? " active" : "") + '" data-city="' + c + '">' + c + '<span class="cn">' + cities[c] + '</span></span>';
+      html += '<span class="chip' + (selCities.indexOf(c) !== -1 ? " active" : "") + '" data-city="' + c + '">' + c + '<span class="cn">' + cities[c] + '</span></span>';
     }
     if (filtered.length > LIMIT) {
       html += cityExpanded
@@ -1558,7 +1588,12 @@
     var chips = cityChips.querySelectorAll(".chip:not(.more)");
     for (var i2 = 0; i2 < chips.length; i2++) {
       chips[i2].addEventListener("click", function () {
-        currentCity = this.getAttribute("data-city");
+        var v = this.getAttribute("data-city");
+        if (v === "全部") selCities = [];                       /* 全部=清空多选 */
+        else {
+          var idx = selCities.indexOf(v);
+          if (idx === -1) selCities.push(v); else selCities.splice(idx, 1);   /* 再点一次取消，多选 */
+        }
         buildCity();
         render();
       });
@@ -1575,17 +1610,47 @@
     return j._dl;
   }
 
+  /* ===== 届数解析：标题里出现 2027届/2028届 记入对应届，都没有归入"其他"（结果缓存） ===== */
+  function gradOf(j) {
+    if (j._grads) return j._grads;
+    var t = j.title || "";
+    var gs = [];
+    if (/2027\s*届/.test(t)) gs.push("2027");
+    if (/2028\s*届/.test(t)) gs.push("2028");
+    j._grads = gs;
+    return j._grads;
+  }
+
   /* ===== 筛选条：截止时间（排序/限时） ===== */
   var filterbar = document.getElementById("filterbar");
   function buildFilterbar() {
     if (favMode) { filterbar.style.display = "none"; return; }
     filterbar.style.display = "";
+    /* 届数：全部=无多选；选中的届亮起 */
+    var allGradChip = document.querySelector(".fchip[data-grad='__all__']");
+    if (allGradChip) allGradChip.classList.toggle("active", selGrads.length === 0);
+    document.querySelectorAll(".fchip[data-grad]").forEach(function (c) {
+      var v = c.getAttribute("data-grad");
+      if (v !== "__all__") c.classList.toggle("active", selGrads.indexOf(v) !== -1);
+    });
     document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
       c.classList.toggle("active", c.getAttribute("data-dl") === dlMode);
     });
   }
-  /* 截止时间 chip 是静态元素：监听器只绑一次，避免重复触发 */
+  /* 届数 + 截止时间 chip 都是静态元素：监听器只绑一次，避免重复触发 */
   (function bindStaticFilterChips() {
+    document.querySelectorAll(".fchip[data-grad]").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var v = this.getAttribute("data-grad");
+        if (v === "__all__") selGrads = [];                    /* 全部=清空多选 */
+        else {
+          var idx = selGrads.indexOf(v);
+          if (idx === -1) selGrads.push(v); else selGrads.splice(idx, 1);   /* 再点一次取消，多选 */
+        }
+        buildFilterbar();
+        render();
+      });
+    });
     document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
       c.addEventListener("click", function () {
         var v = this.getAttribute("data-dl");
@@ -1730,7 +1795,7 @@
   var lastFilterSig = "";
 
   function render() {
-    var sig = [currentRail, currentType, currentCity, keyword, recommendMode, favMode, dlMode].join("|");
+    var sig = [currentRail, currentType, selCities.join("+"), selGrads.join("+"), keyword, recommendMode, favMode, dlMode].join("|");
     if (sig !== lastFilterSig) { renderLimit = RENDER_STEP; lastFilterSig = sig; }
 
     /* 收藏模式下隐藏城市条和筛选条（收藏跨所有城市） */
@@ -1751,7 +1816,16 @@
         } else {
           if (currentType !== "全部" && (j.type || "其他") !== currentType) continue;
         }
-        if (currentCity !== "全部" && j.city !== currentCity) continue;
+        /* 城市多选：岗位城市在所选集合内才保留 */
+        if (selCities.length && selCities.indexOf(j.city) === -1) continue;
+        /* 届数多选：2027届/2028届按标题匹配，"其他"=标题没写2027/2028届的 */
+        if (selGrads.length) {
+          var gsv = gradOf(j), ok = false;
+          for (var g = 0; g < selGrads.length; g++) {
+            if (selGrads[g] === "__other__" ? gsv.length === 0 : gsv.indexOf(selGrads[g]) !== -1) { ok = true; break; }
+          }
+          if (!ok) continue;
+        }
         /* 三天内截止：只留未来 0~3 天内过期的（必须写明日期） */
         if (dlMode === "3d") {
           var ts3 = dlTsOf(j);
@@ -1906,7 +1980,8 @@
     recommendMode = false;
     recommendSet = [];
     currentType = "全部";
-    currentCity = "全部";
+    selCities = [];
+    selGrads = [];
     dlMode = "";
     buildTypeList();
     buildCity();
@@ -1928,7 +2003,7 @@
       .map(function (c) { return { text: c, html: "📍 " + highlight(c, v), n: byCity[c] + " 个岗位" }; });
     buildAcList(cityWrap, items, function (it) {
       citySearch.value = it.text;
-      currentCity = it.text;
+      selCities = [it.text];
       cityKeyword = "";
       buildCity();
       render();
@@ -1937,7 +2012,29 @@
   });
   citySearch.addEventListener("blur", function () { setTimeout(function () { closeAc(cityWrap); }, 120); });
 
-  /* ===== 问题反馈按钮：悬停提示邮箱，点击一键复制 ===== */
+  /* ===== 搜索框一键清除小 × ===== */
+  var clearSearch = document.getElementById("clearSearch");
+  var clearCity = document.getElementById("clearCity");
+  searchInput.addEventListener("input", function () { clearSearch.style.display = searchInput.value ? "" : "none"; });
+  citySearch.addEventListener("input", function () { clearCity.style.display = citySearch.value ? "" : "none"; });
+  clearSearch.addEventListener("click", function () {
+    searchInput.value = "";
+    clearSearch.style.display = "none";
+    keyword = "";
+    closeAc(searchBoxWrap);
+    render();
+    searchInput.focus();
+  });
+  clearCity.addEventListener("click", function () {
+    citySearch.value = "";
+    clearCity.style.display = "none";
+    cityKeyword = "";
+    cityExpanded = false;
+    closeAc(cityWrap);
+    buildCity();
+    render();
+    citySearch.focus();
+  });
   var FEEDBACK_EMAIL = "ysr040921@qq.com";
   var btnFeedback = document.getElementById("btnFeedback");
   var fbPop = document.createElement("div");
@@ -1993,7 +2090,7 @@
     favMode = !favMode;
     document.querySelectorAll(".rail-btn").forEach(function (b) { b.classList.remove("active"); });
     this.classList.toggle("active", favMode);
-    if (favMode) { recommendMode = false; currentType = "全部"; currentCity = "全部"; }
+    if (favMode) { recommendMode = false; currentType = "全部"; selCities = []; selGrads = []; }
     render();
     try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
   });
@@ -2809,30 +2906,39 @@
       '<div class="jt-sep"></div>' + body + meta;
   }
 
-  function placeTip(tip, rect) {
+  /* 简介卡跟手：以鼠标坐标为锚点弹出，鼠标移动时卡片实时跟随（超出屏幕自动翻转/收拢） */
+  function placeTipAtMouse(tip, mx, my) {
     tip.classList.add("show");
     var tw = tip.offsetWidth, th = tip.offsetHeight;
-    var left = rect.right + 12;
-    if (left + tw > window.innerWidth - 8) left = rect.left - tw - 12;   /* 右边放不下就放左边 */
-    if (left < 8) left = Math.max(8, window.innerWidth - tw - 8);
-    var top = rect.top;
-    if (top + th > window.innerHeight - 8) top = window.innerHeight - th - 8;
+    var left = mx + 16;
+    if (left + tw > window.innerWidth - 8) left = mx - tw - 16;   /* 右边放不下翻到鼠标左边 */
+    if (left < 8) left = 8;
+    var top = my + 14;
+    if (top + th > window.innerHeight - 8) top = my - th - 14;    /* 下面放不下翻到鼠标上面 */
     if (top < 8) top = 8;
     tip.style.left = left + "px";
     tip.style.top = top + "px";
   }
 
-  /* 悬停 0.8 秒弹出详情，避免鼠标扫过就闪 */
+  /* 悬停 0.3 秒弹出详情，避免鼠标扫过就闪；弹出后卡片跟手 */
   var HOVER_DELAY = 300;
   var hoverTimer = null;
   var hoverCard = null;
+  var lastMouse = { x: 0, y: 0 };
 
   function clearHover() {
     if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
     hoverCard = null;
   }
 
+  grid.addEventListener("mousemove", function (e) {
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    /* 已弹出的简介卡实时跟随鼠标 */
+    if (hoverCard && jobTip.classList.contains("show")) placeTipAtMouse(jobTip, e.clientX, e.clientY);
+  });
+
   grid.addEventListener("mouseover", function (e) {
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
     var card = e.target.closest ? e.target.closest(".card") : null;
     if (!card || card.parentNode !== grid) { clearHover(); hideJobTip(); return; }
     if (card === hoverCard) return;                 /* 卡片内部移动，不重新计时 */
@@ -2844,7 +2950,7 @@
     hoverTimer = setTimeout(function () {
       if (hoverCard !== card) return;
       fillJobTip(jobs[idx]);
-      placeTip(jobTip, card.getBoundingClientRect());
+      placeTipAtMouse(jobTip, lastMouse.x, lastMouse.y);
     }, HOVER_DELAY);
   });
   grid.addEventListener("mouseout", function (e) {
@@ -3403,9 +3509,11 @@
           for (var r in railCount) { if (railCount[r] > railCount[best]) best = r; }
           currentRail = best;
           currentType = "全部";
-          currentCity = "全部";
+          selCities = [];
+          selGrads = [];
           keyword = "";
           searchInput.value = "";
+          clearSearch.style.display = "none";
           document.querySelectorAll(".rail-btn").forEach(function (b2) {
             b2.classList.toggle("active", b2.getAttribute("data-rail") === best);
           });
