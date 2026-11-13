@@ -83,6 +83,37 @@
     width: 100%;
     text-align: center;
   }
+  /* 狗头彩蛋：可以捏，捏一下冒 Lucky+1 / Offer+1 */
+  .rail .logo {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .rail .logo.squish { animation: logo-squish .35s ease-out; }
+  @keyframes logo-squish {
+    0% { transform: scale(1); }
+    35% { transform: scale(.78) rotate(-8deg); }
+    70% { transform: scale(1.14) rotate(4deg); }
+    100% { transform: scale(1); }
+  }
+  .lucky-pop {
+    position: absolute;
+    left: calc(100% - 14px); top: -4px;
+    font-size: 12px; font-weight: 800;
+    color: #F5B301;
+    text-shadow: 0 1px 3px rgba(0,0,0,.15);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 60;
+    animation: lucky-rise 1.2s ease-out forwards;
+  }
+  .lucky-pop.offer { color: var(--theme); }
+  @keyframes lucky-rise {
+    0% { opacity: 0; transform: translateY(8px) scale(.5); }
+    18% { opacity: 1; transform: translateY(0) scale(1.12); }
+    100% { opacity: 0; transform: translateY(-48px) translateX(12px) scale(1); }
+  }
   .rail-btn {
     width: 52px;
     padding: 9px 0 8px;
@@ -256,6 +287,37 @@
     font-family: "Yuanti SC", "YouYuan", "幼圆", "STYuanti", "Hiragino Maru Gothic ProN", "Quicksand", "Varela Round", "Microsoft YaHei", sans-serif;
   }
   .page-title .sub { font-size: 10px; font-weight: 500; color: var(--text-3); letter-spacing: 2px; display: block; margin-top: 3px; font-family: "Inter", "Microsoft YaHei", "PingFang SC", sans-serif; }
+  /* 标题后的小介绍按钮：平时几乎隐形，悬停立刻浮出介绍卡片 */
+  .about-wrap { position: relative; display: inline-block; margin-left: 10px; vertical-align: 8px; }
+  .about-btn {
+    width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); border-radius: 50%;
+    background: transparent; cursor: pointer;
+    font-family: "Inter", "Segoe UI", sans-serif; font-size: 10px; font-weight: 700; font-style: normal;
+    color: var(--text-3); opacity: .5;
+    padding: 0; line-height: 1;
+    transition: opacity .15s, border-color .15s, color .15s;
+  }
+  .about-btn:hover { opacity: 1; border-color: var(--theme); color: var(--theme); }
+  .about-pop {
+    position: absolute; left: -14px; top: calc(100% + 12px);
+    width: 470px; max-width: 74vw;
+    background: var(--card-bg);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px;
+    font-family: "Inter", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 12.5px; font-weight: 400; letter-spacing: .3px;
+    line-height: 2.05; color: var(--text-2);
+    box-shadow: 0 12px 36px var(--shadow);
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease, visibility .18s;
+    z-index: 55;
+  }
+  .about-pop b { color: var(--theme); font-weight: 700; letter-spacing: .5px; }
+  /* 隐形桥：鼠标从按钮移向卡片时不中断 hover */
+  .about-pop::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+  .about-wrap:hover .about-pop, .about-pop.open { opacity: 1; visibility: visible; transform: translateY(0); }
   .field { position: relative; width: 210px; }
   .field .icon {
     position: absolute; left: 11px; top: 50%;
@@ -314,6 +376,40 @@
   }
   .all-btn:hover { background: var(--theme); color: #fff; transform: translateY(-1px); }
   .all-btn.alert { background: var(--theme); color: #fff; }
+
+  /* 我的收藏（左栏入口） */
+  .fav-feature.active { background: #F5B301; color: #fff; box-shadow: 0 2px 10px rgba(245, 179, 1, .35); }
+  .rail-feature .n { font-size: 9px; opacity: .85; font-weight: 700; }
+
+  /* 卡片右下角收藏星 */
+  .fav-star {
+    margin-left: 10px;
+    background: none; border: none; cursor: pointer;
+    font-size: 17px; line-height: 1; padding: 2px 3px;
+    color: var(--text-3); opacity: .45;
+    transition: opacity .15s, transform .15s, color .15s;
+  }
+  .fav-star:hover { opacity: 1; transform: scale(1.2); }
+  .fav-star.on { color: #F5B301; opacity: 1; text-shadow: 0 1px 4px rgba(245, 179, 1, .45); }
+
+  /* 滚动公告横幅 */
+  .notice-bar {
+    display: flex; align-items: center; gap: 8px;
+    height: 30px; margin-bottom: 10px; padding: 0 12px;
+    background: var(--tag-default-bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden;
+  }
+  .nb-ico { font-size: 13px; flex: none; }
+  .nb-viewport { flex: 1; overflow: hidden; }
+  .nb-track { display: inline-flex; white-space: nowrap; animation: nb-scroll 45s linear infinite; will-change: transform; }
+  .notice-bar:hover .nb-track { animation-play-state: paused; }
+  .nb-item { display: inline-block; font-size: 12px; color: var(--text-2); }
+  .nb-item b { color: var(--theme); font-weight: 700; }
+  .nb-soon b { color: var(--theme); }
+  .nb-soon.urgent b { color: var(--tag-red); }
+  .nb-sep { padding: 0 34px; color: var(--text-3); opacity: .45; }
+  @keyframes nb-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
   /* ========== 城市筛选条（Boss直聘式横排标签） ========== */
   .citybar {
@@ -552,8 +648,8 @@
     padding: 9px 0 8px;
     border: none;
     border-radius: 12px;
-    background: var(--feature-bg);
-    color: #FFFFFF;
+    background: transparent;
+    color: var(--text-2);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -563,11 +659,10 @@
     font-size: 10px;
     line-height: 1.35;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(54, 92, 150, .22);
-    transition: background .15s, transform .15s;
+    transition: background .15s, transform .15s, color .15s;
   }
   .rail-feature .ico { font-size: 17px; line-height: 1; }
-  .rail-feature:hover { background: var(--feature-hover); transform: translateY(-1px); }
+  .rail-feature:hover { background: var(--hover-bg); color: var(--text); transform: translateY(-1px); }
   .rail-divider { width: 34px; height: 1px; background: var(--border); margin: 8px 0 10px; }
 
   /* 设置弹层里的登录区 */
@@ -874,6 +969,7 @@
   <button class="rail-btn" data-rail="spring"><span class="ico">🏛️</span><span class="lbl">春招</span><span class="n" id="n-spring"></span></button>
   <button class="rail-btn" data-rail="intern"><span class="ico">🏖</span><span class="lbl">实习</span><span class="n" id="n-intern"></span></button>
   <div class="rail-spacer"></div>
+  <button class="rail-feature fav-feature" id="btnFavs" title="我收藏的岗位"><span class="ico">⭐</span>我的<br>收藏<span class="n" id="n-favs"></span></button>
   <button class="rail-feature" id="btnDiagnose" title="单击打开：AI 简历诊断"><span class="ico">📋</span>AI诊断<br>简历</button>
   <div class="rail-divider"></div>
   <button class="rail-setting" id="btnSetting"><span class="ico">⚙️</span>设置</button>
@@ -981,12 +1077,15 @@
 <!-- 右侧内容区 -->
 <div class="main">
   <div class="topbar">
-    <div class="page-title" id="pageTitle">一咝卟狗の校招情报库<span class="sub">开源维护人：小羊花泽类</span></div>
+    <div class="page-title" id="pageTitle">一咝卟狗の校招情报库<span class="about-wrap"><button class="about-btn" id="aboutBtn" aria-label="网站介绍">i</button><span class="about-pop" id="aboutPop"><b>写给同样在秋招里焦虑的你</b><br>我很感同身受：焦虑大多不是来自不够努力，而是来自不确定——岗位散落在几十个公众号和网站里，刷得越多，心越慌。<br>这里只做一件小事：每天早上 8 点，把全网校招信息整理成一页看得完的清单——官网直链、截止倒计时、AI 岗位匹配，一键到位。<br>心理学的答案很简单：对抗焦虑，靠的不是更多信息，而是把不确定变成确定的一小步。<br>愿你在这里少刷一点、多投一点，等来属于你的那个 Offer。</span></span><span class="sub">开源维护人：小羊花泽类</span></div>
     <div class="top-actions">
-      <button class="all-btn" id="btnShowAll" title="清除所有筛选（含 AI 推荐筛选），一键显示全部岗位">一键全选</button>
+      <button class="all-btn" id="btnExitRec" style="display:none" title="退出 AI 推荐筛选，恢复显示全部岗位">← 退出推荐筛选</button>
       <div class="result-count" id="count"></div>
     </div>
   </div>
+
+  <!-- 滚动公告横幅：今日新增 + 重要国企截止倒计时 -->
+  <div class="notice-bar" id="noticeBar"><span class="nb-ico">📢</span><div class="nb-viewport"><div class="nb-track" id="nbTrack"></div></div></div>
 
   <!-- 城市筛选条：横排标签，放不下再展开 -->
   <div class="citybar">
@@ -1018,6 +1117,18 @@
   var cityExpanded = false;
   /* AI 推荐筛选模式：开启后页面只显示简历诊断推荐的岗位 */
   var recommendMode = false;
+
+  /* ===== 收藏功能：星级收藏存本机浏览器（localStorage），换分类/关页面都不丢 ===== */
+  var favMode = false;
+  var favKeys = [];
+  try { favKeys = JSON.parse(localStorage.getItem("job-site-favs") || "[]") || []; } catch (e) { favKeys = []; }
+  function jobKey(j) { return (j.company || "") + "|" + (j.title || "") + "|" + (j.deadline || ""); }
+  function isFav(j) { return favKeys.indexOf(jobKey(j)) !== -1; }
+  function saveFavs() { try { localStorage.setItem("job-site-favs", JSON.stringify(favKeys)); } catch (e) {} }
+  function updateFavCount() {
+    var n = document.getElementById("n-favs");
+    if (n) n.textContent = favKeys.length ? String(favKeys.length) : "";
+  }
   var recommendSet = [];
   var typeList = document.getElementById("typeList");
   var countEl = document.getElementById("count");
@@ -1071,6 +1182,8 @@
   document.querySelectorAll(".rail-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.querySelectorAll(".rail-btn").forEach(function (b) { b.classList.remove("active"); });
+      document.getElementById("btnFavs").classList.remove("active");
+      favMode = false;
       btn.classList.add("active");
       currentRail = btn.getAttribute("data-rail");
       currentType = "全部";
@@ -1298,20 +1411,27 @@
   var lastFilterSig = "";
 
   function render() {
-    var sig = [currentRail, currentType, currentCity, keyword, recommendMode].join("|");
+    var sig = [currentRail, currentType, currentCity, keyword, recommendMode, favMode].join("|");
     if (sig !== lastFilterSig) { renderLimit = RENDER_STEP; lastFilterSig = sig; }
+
+    /* 收藏模式下隐藏城市条（收藏跨所有城市） */
+    document.querySelector(".citybar").style.display = favMode ? "none" : "";
 
     var matched = [];
     for (var i = 0; i < jobs.length; i++) {
       var j = jobs[i];
-      if (recommendMode && recommendSet.indexOf(j) === -1) continue;   /* AI 推荐筛选模式：只显示推荐岗位 */
-      if (railOf(j) !== currentRail) continue;
-      if (currentType === "__ended__") {
-        if (!j.ended) continue;                    /* "已结束"分类：只看结束的 */
+      if (favMode) {                              /* 我的收藏：跨秋招/实习所有分类 */
+        if (!isFav(j)) continue;
       } else {
-        if (currentType !== "全部" && (j.type || "其他") !== currentType) continue;
+        if (recommendMode && recommendSet.indexOf(j) === -1) continue;   /* AI 推荐筛选模式：只显示推荐岗位 */
+        if (railOf(j) !== currentRail) continue;
+        if (currentType === "__ended__") {
+          if (!j.ended) continue;                    /* "已结束"分类：只看结束的 */
+        } else {
+          if (currentType !== "全部" && (j.type || "其他") !== currentType) continue;
+        }
+        if (currentCity !== "全部" && j.city !== currentCity) continue;
       }
-      if (currentCity !== "全部" && j.city !== currentCity) continue;
       if (!matchKeyword(j)) continue;
       matched.push(i);
     }
@@ -1344,7 +1464,9 @@
         '</div>' +
         '<div class="time">⏰ 截止 ' + j2.deadline + ' · 更新 ' + (j2.updated || "—") + '</div>' +
         '<div class="channel">' + channelText(j2) + '</div>' +
-        '<div class="bottom">' + applyHtml + '</div>';
+        '<div class="bottom">' + applyHtml +
+          '<button class="fav-star' + (isFav(j2) ? " on" : "") + '" data-fav="' + encodeURIComponent(jobKey(j2)) + '" title="' + (isFav(j2) ? "取消收藏" : "收藏这个岗位") + '">' + (isFav(j2) ? "★" : "☆") + '</button>' +
+        '</div>';
       grid.appendChild(card);
     }
 
@@ -1358,43 +1480,99 @@
     }
 
     if (ordered.length === 0) {
-      var tip = recommendMode
-        ? '推荐岗位已不在当前分类里了（可能下架或换了分类），点右上角「返回全部岗位」即可'
+      var tip = favMode
+        ? '还没有收藏岗位<br>看到心动的岗位，点卡片右下角的 ☆ 收藏，以后在这里一网打尽'
+        : (recommendMode
+        ? '推荐岗位已不在当前分类里了（可能下架或换了分类），点右上角「退出推荐筛选」即可'
         : (currentType === "__ended__"
           ? '当前分类下还没有已结束的岗位'
           : (currentRail === "spring"
             ? '春招岗位暂未开放，一般在次年 3~5 月集中释放<br>本站每日自动抓取，开放当天就会出现在这里'
-            : '当前筛选条件下暂无岗位，换个筛选试试'));
+            : '当前筛选条件下暂无岗位，换个筛选试试')));
       grid.innerHTML = '<div class="empty">' + tip + '</div>';
     }
     var endedTotal = 0;
     for (var e2 = 0; e2 < matched.length; e2++) { if (jobs[matched[e2]].ended) endedTotal++; }
-    countEl.innerHTML = '共 <b>' + ordered.length + '</b> 个岗位' +
+    countEl.innerHTML = favMode
+      ? '⭐ 我的收藏 <b>' + ordered.length + '</b> 个岗位<div class="count-meta">收藏保存在本机浏览器，换分类、关页面都不会丢</div>'
+      : '共 <b>' + ordered.length + '</b> 个岗位' +
       (currentType !== "__ended__" && endedTotal ? '<span class="ended-mini">❗ 含已结束 ' + endedTotal + ' 个（排最后）</span>' : '') +
       (recommendMode ? '<span class="rec-flag">🎯 AI 推荐筛选中</span>' : '') +
       '<div class="count-meta">数据截至 2026/11/13 18:00<br>每日 8:00 自动更新最新岗位</div>';
-    /* 顶部按钮跟随状态：推荐模式下变成醒目的"返回全部岗位" */
-    var btnAll = document.getElementById("btnShowAll");
-    btnAll.textContent = recommendMode ? "← 返回全部岗位" : "一键全选";
-    btnAll.classList.toggle("alert", recommendMode);
+    /* 顶部"退出推荐筛选"按钮只在推荐模式出现 */
+    var btnExit = document.getElementById("btnExitRec");
+    btnExit.style.display = recommendMode ? "" : "none";
   }
 
   searchInput.addEventListener("input", function () {
     keyword = this.value.trim().toLowerCase();
     render();
   });
-  /* 一键全选：清掉所有筛选（含 AI 推荐筛选），回到全部岗位 */
-  document.getElementById("btnShowAll").addEventListener("click", function () {
+  /* 退出 AI 推荐筛选：只在推荐模式下出现的按钮 */
+  document.getElementById("btnExitRec").addEventListener("click", function () {
     recommendMode = false;
     recommendSet = [];
     currentType = "全部";
     currentCity = "全部";
-    keyword = "";
-    searchInput.value = "";
     buildTypeList();
+    buildCity();
     render();
   });
   citySearch.addEventListener("input", function () { cityKeyword = this.value; cityExpanded = false; buildCity(); });
+
+  /* ===== 收藏：点星星收藏/取消（事件委托，9439 张卡也只挂一个监听） ===== */
+  grid.addEventListener("click", function (e) {
+    var s = e.target.closest ? e.target.closest(".fav-star") : null;
+    if (!s) return;
+    var k = decodeURIComponent(s.getAttribute("data-fav"));
+    var idx = favKeys.indexOf(k);
+    if (idx === -1) { favKeys.push(k); s.classList.add("on"); s.textContent = "★"; s.title = "取消收藏"; }
+    else {
+      favKeys.splice(idx, 1);
+      s.classList.remove("on"); s.textContent = "☆"; s.title = "收藏这个岗位";
+      if (favMode) { render(); return; }   /* 收藏页里取消 → 卡片立刻消失 */
+    }
+    saveFavs();
+    updateFavCount();
+  });
+
+  /* 左栏「我的收藏」：点击只看收藏的岗位 */
+  document.getElementById("btnFavs").addEventListener("click", function () {
+    favMode = !favMode;
+    document.querySelectorAll(".rail-btn").forEach(function (b) { b.classList.remove("active"); });
+    this.classList.toggle("active", favMode);
+    if (favMode) { recommendMode = false; currentType = "全部"; currentCity = "全部"; }
+    render();
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+  });
+
+  /* ===== 滚动公告：今日新增岗位数 + 重要国企/银行岗位截止倒计时 ===== */
+  (function fillNotice() {
+    var newCount = 0;
+    for (var i = 0; i < jobs.length; i++) { if (jobs[i].isNew && !jobs[i].ended) newCount++; }
+    var now = new Date();
+    var soe = [];
+    for (var k = 0; k < jobs.length; k++) {
+      var j = jobs[k];
+      if (j.ended) continue;
+      var tp = j.type || "";
+      if (tp.indexOf("央国企") === -1 && tp.indexOf("银行") === -1 && tp.indexOf("国企") === -1) continue;
+      var m = (j.deadline || "").match(/(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})/);
+      if (!m) continue;
+      var days = Math.ceil((new Date(+m[1], +m[2] - 1, +m[3]) - now) / 86400000);
+      if (days < 0) continue;
+      soe.push({ c: j.company, days: days, md: ("0" + (+m[2])).slice(-2) + "-" + ("0" + (+m[3])).slice(-2) });
+    }
+    soe.sort(function (a, b) { return a.days - b.days; });
+    var parts = ['🔥 今日新增 <b>' + newCount + '</b> 个岗位（每日 8:00 自动更新）'];
+    for (var s = 0; s < soe.length && s < 8; s++) {
+      var dTxt = soe[s].days === 0 ? "今天截止" : (soe[s].days === 1 ? "明天截止" : "仅剩 " + soe[s].days + " 天");
+      parts.push('<span class="nb-soon' + (soe[s].days <= 3 ? " urgent" : "") + '">⚡ <b>' + soe[s].c + '</b> ' + soe[s].md + ' 截止，' + dTxt + '</span>');
+    }
+    var html = parts.join('<span class="nb-sep">｜</span>') + '<span class="nb-sep">｜</span>';
+    /* 内容画两遍，无缝循环滚动 */
+    document.getElementById("nbTrack").innerHTML = '<span class="nb-item">' + html + '</span><span class="nb-item">' + html + '</span>';
+  })();
 
   /* ===== 岗位卡片悬停详情：鼠标移上去显示这条岗位的完整介绍，移开消失 ===== */
   var jobTip = document.createElement("div");
@@ -1479,6 +1657,43 @@
   window.addEventListener("scroll", function () { clearHover(); hideJobTip(); hideCityTip(); }, true);
 
   buildRailCounts();
+  updateFavCount();
+
+  /* 介绍小按钮：点击也能开关（鼠标悬停即时显示，点击兜底），点别处收起 */
+  (function () {
+    var btn = document.getElementById("aboutBtn");
+    var pop = document.getElementById("aboutPop");
+    if (!btn || !pop) return;
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      pop.classList.toggle("open");
+    });
+    document.addEventListener("click", function (e) {
+      if (pop.classList.contains("open") && !pop.contains(e.target) && e.target !== btn) pop.classList.remove("open");
+    });
+  })();
+
+  /* ===== 狗头彩蛋：点一下捏一捏，右上角冒 Lucky+1 / Offer+1 ===== */
+  (function () {
+    var logo = document.querySelector(".rail .logo");
+    if (!logo) return;
+    var n = 0;
+    var words = ["Lucky +1", "Offer +1"];
+    logo.addEventListener("click", function () {
+      n++;
+      var idx = (n - 1) % 2;              /* 0=Lucky(金) 1=Offer(主题色)，先 Lucky 后 Offer */
+      var pop = document.createElement("span");
+      pop.className = "lucky-pop" + (idx === 1 ? " offer" : "");
+      pop.textContent = words[idx];
+      logo.appendChild(pop);
+      setTimeout(function () { if (pop.parentNode) pop.parentNode.removeChild(pop); }, 1250);
+      /* 捏一下的回弹手感：连续点击也能重新触发动画 */
+      logo.classList.remove("squish");
+      void logo.offsetWidth;
+      logo.classList.add("squish");
+      setTimeout(function () { logo.classList.remove("squish"); }, 360);
+    });
+  })();
   buildCity();
   buildTypeList();
   render();
@@ -1996,7 +2211,7 @@
           buildCity();
           closeMask("aiMask");
           render();
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
         });
       };
       bindBtn("btnFilterMatch");
