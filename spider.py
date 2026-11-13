@@ -159,6 +159,24 @@ def is_weixin(u):
     return "weixin.qq.com" in (u or "").lower()
 
 
+def usable_notice_url(u):
+    """能当「查看招聘公告」用的链接：http 且不是微信短链。
+    微信短链（weixin.qq.com/r/...）在电脑浏览器点开会弹'下载微信'，体验极差；
+    mp.weixin.qq.com 的公众号文章页浏览器可正常阅读，保留。"""
+    u = (u or "").strip()
+    if not is_http(u):
+        return False
+    low = u.lower()
+    # 微信短链域名（mp.weixin.qq.com 文章页除外）
+    if "weixin.qq.com" in low and "mp.weixin.qq.com" not in low:
+        return False
+    # 其他会跳 APP/异常的短链
+    for bad in ("xhslink.cn/", "lxi.me/", "jsj.top/"):
+        if bad in low:
+            return False
+    return True
+
+
 def normalize_deadline(s):
     """截止时间统一成年-月-日；'招满为止'这类滚动招聘保留原文"""
     s = str(s or "").strip()
@@ -358,7 +376,7 @@ def convert_xixicc(raw_jobs, today):
             "ended": ended,
             "official_url": of_url,
             "info_url": (item.get("official_wechat") or "").strip()
-                        if is_http(item.get("official_wechat")) else "",
+                        if usable_notice_url(item.get("official_wechat")) else "",
             "delivery_channel": channel,
         })
     return result

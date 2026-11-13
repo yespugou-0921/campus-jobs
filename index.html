@@ -640,6 +640,9 @@
   /* 公告档：青绿色，点开是官方招聘公告页（浏览器直接阅读，不唤起微信） */
   .card .apply.info { background: #3E7C6F; }
   .card .apply.info:hover { background: #33665B; }
+  /* 公众号搜索档：微信绿，点开是搜狗微信搜该公司公众号（电脑直接用，不弹下载微信） */
+  .card .apply.wechat { background: #2AAE67; }
+  .card .apply.wechat:hover { background: #22915A; }
   /* 搜索档：暖橙色，点开是必应搜索该公司招聘公告 */
   .card .apply.search { background: #C07A3D; }
   .card .apply.search:hover { background: #A96831; }
@@ -685,7 +688,7 @@
   .card.ended { background: #E9E7E2; border-color: #D9D6CF; box-shadow: none; }
   .card.ended .company, .card.ended .role, .card.ended .time, .card.ended .channel { color: #8A877F; }
   .card.ended .tag { opacity: .55; filter: grayscale(1); }
-  .card.ended .apply.info, .card.ended .apply.search { display: none; }  /* 结束的岗位不需要再看入口 */
+  .card.ended .apply.info, .card.ended .apply.search, .card.ended .apply.wechat { display: none; }  /* 结束的岗位不需要再看入口 */
   body.dark .card.ended, body.theme-frost .card.ended, body.theme-cocoa .card.ended { background: rgba(0,0,0,.28); border-color: var(--border); }
   body.dark .card.ended .company, body.dark .card.ended .role,
   body.dark .card.ended .time, body.dark .card.ended .channel,
@@ -1508,7 +1511,15 @@
   function infoUrlOf(j) {
     var u = (j.info_url || "").trim();
     if (!u || u.toLowerCase().indexOf("http") !== 0) return "";
+    /* 微信短链（weixin.qq.com/r/...）在电脑浏览器点开只会弹"下载微信"，不算可用公告链接 */
+    if (/^https?:\/\/(www\.)?weixin\.qq\.com\//i.test(u)) return "";
+    /* 其他异常短链同理 */
+    if (/^https?:\/\/(xhslink\.cn|lxi\.me|jsj\.top)\//i.test(u)) return "";
     return u;
+  }
+  /* 渠道是公众号、但没有可用链接时：用搜狗微信搜公众号（电脑可开、免装微信） */
+  function isWechatChannel(j) {
+    return ((j.delivery_channel || "").indexOf("公众号") !== -1);
   }
 
   function applyBtnHtml(j) {
@@ -1523,6 +1534,10 @@
     if (info) {
       return '<a class="apply info" href="' + info + '" target="_blank" rel="noopener noreferrer" title="暂无官网投递链接，先看官方招聘公告了解报名方式">查看招聘公告</a>';
     }
+    if (isWechatChannel(j)) {
+      var wq = encodeURIComponent(j.company || "");
+      return '<a class="apply wechat" href="https://weixin.sogou.com/weixin?type=1&query=' + wq + '" target="_blank" rel="noopener noreferrer" title="报名方式在微信公众号，点这里在搜狗微信里搜该公众号（电脑直接打开，无需安装微信）">公众号搜索</a>';
+    }
     var q = encodeURIComponent((j.company || "") + " 校园招聘 报名入口");
     return '<a class="apply search" href="https://www.bing.com/search?q=' + q + '" target="_blank" rel="noopener noreferrer" title="数据源未收录链接，一键搜索该公司招聘公告">搜索招聘入口</a>';
   }
@@ -1535,6 +1550,7 @@
       if (c === "公众号") return "渠道：<b>公众号投递</b>（点「查看招聘公告」直达）";
       return "渠道：<b>" + (c || "公告") + "</b>（点「查看招聘公告」直达）";
     }
+    if (isWechatChannel(j)) return "渠道：<b>公众号投递</b>（点「公众号搜索」查找，无需安装微信）";
     return "渠道：<b>公众号 / 邮箱</b>（点「搜索招聘入口」查找）";
   }
 
@@ -1733,6 +1749,7 @@
     if (j.ended) chDesc = "该岗位已过截止日期，投递通道已关闭";
     else if (officialUrlOf(j)) chDesc = "官网投递（点右下角「直达官网投递」）";
     else if (infoUrlOf(j)) chDesc = (ch === "邮箱" ? "邮箱投递" : "公众号 / 公告投递") + "，暂无官网链接（点右下角「查看招聘公告」了解报名方式）";
+    else if (isWechatChannel(j)) chDesc = "公众号投递，报名方式在微信公众号（点右下角「公众号搜索」查找，无需安装微信）";
     else chDesc = "公众号 / 邮箱投递，暂无官网链接（点右下角「搜索招聘入口」一键查找）";
     rows += '<div class="jt-row"><span class="jt-k">投递</span><span class="jt-v">' + chDesc + '</span></div>';
     jobTip.innerHTML =
