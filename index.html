@@ -1366,6 +1366,7 @@
     for (var i = 0; i < jobs.length; i++) {
       if (railOf(jobs[i]) !== currentRail) continue;
       railTotal++;
+      if (jobs[i].city === "未公布") continue;   /* 没写地点的岗位不进城市筛选栏 */
       cities[jobs[i].city] = (cities[jobs[i].city] || 0) + 1;
     }
     if (railTotal === 0) { citybar.style.display = "none"; cityChips.innerHTML = ""; return; }
@@ -1566,7 +1567,7 @@
         '<div class="company">' + endedBadge + j2.company + (j2.isNew && !j2.ended ? '<span class="new">NEW</span>' : '') + '</div>' +
         '<div class="role">' + j2.title + '</div>' +
         '<div class="tags">' +
-          '<span class="tag ' + (j2.city === "未公布" ? "city na" : "city") + '">📍 ' + j2.city + '</span>' +
+          (j2.city === "未公布" ? "" : '<span class="tag city">📍 ' + j2.city + '</span>') +
           '<span class="tag ' + tagClass(j2.type) + '">' + (j2.type || "其他") + '</span>' +
           (j2.batch ? '<span class="tag batch">' + batchTagText(j2) + '</span>' : '') +
         '</div>' +
@@ -1696,7 +1697,7 @@
   /* 鼠标在卡片上看不到浮层时（例如触屏），点一下也能看 */
   function fillJobTip(j) {
     var rows = "";
-    rows += '<div class="jt-row"><span class="jt-k">城市</span><span class="jt-v">' + esc(j.city) + '</span></div>';
+    rows += '<div class="jt-row"><span class="jt-k">城市</span><span class="jt-v">' + (j.city === "未公布" ? "以招聘公告为准" : esc(j.city)) + '</span></div>';
     rows += '<div class="jt-row"><span class="jt-k">行业</span><span class="jt-v">' + esc(j.type || "其他") + '</span></div>';
     if (j.batch) rows += '<div class="jt-row"><span class="jt-k">批次</span><span class="jt-v">' + esc(j.batch) + '</span></div>';
     var dirs = (j.positions && j.positions.length) ? j.positions.join(" / ") : (j.program || "");
@@ -2209,7 +2210,7 @@
       '<div class="company">' + j.company + " " + badge + '</div>' +
       '<div class="role">' + j.title + '</div>' +
       '<div class="tags">' +
-        '<span class="tag ' + (j.city === "未公布" ? "city na" : "city") + '">📍 ' + j.city + '</span>' +
+        (j.city === "未公布" ? "" : '<span class="tag city">📍 ' + j.city + '</span>') +
         '<span class="tag ' + tagClass(j.type) + '">' + (j.type || "其他") + '</span>' +
         (j.batch ? '<span class="tag batch">' + batchTagText(j) + '</span>' : '') +
       '</div>' +
