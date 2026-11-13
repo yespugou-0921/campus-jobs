@@ -455,6 +455,20 @@
     letter-spacing: 1px;
     color: var(--text);
   }
+  /* YESPUGOU'S 后面的小标：CAMPUS RADAR */
+  .page-title .brand-tag {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-weight: 700;
+    font-size: 9.5px;
+    letter-spacing: 2.5px;
+    color: var(--theme);
+    border: 1px solid color-mix(in srgb, var(--theme) 45%, transparent);
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 9px;
+    vertical-align: 3px;
+    white-space: nowrap;
+  }
   .page-title .brand-zh {
     display: block;
     margin-top: 3px;
@@ -1191,6 +1205,10 @@
   <div class="pop-title">主题色</div>
   <div class="swatch-row">
     <div>
+      <div class="swatch" data-theme="zhusha" style="background:conic-gradient(#212934 0 50%, #F1444E 0)"></div>
+      <div class="swatch-name">朱砂</div>
+    </div>
+    <div>
       <div class="swatch" data-theme="blossom" style="background:conic-gradient(#E3D6BF 0 50%, #933B5B 0)"></div>
       <div class="swatch-name">莓果</div>
     </div>
@@ -1217,10 +1235,6 @@
     <div>
       <div class="swatch" data-theme="caramel" style="background:conic-gradient(#FBEDD6 0 50%, #BF7E46 0)"></div>
       <div class="swatch-name">焦糖</div>
-    </div>
-    <div>
-      <div class="swatch" data-theme="zhusha" style="background:conic-gradient(#212934 0 50%, #F1444E 0)"></div>
-      <div class="swatch-name">朱砂</div>
     </div>
   </div>
   <div class="pop-divider"></div>
@@ -1312,7 +1326,7 @@
 <!-- 右侧内容区 -->
 <div class="main">
   <div class="topbar">
-    <div class="page-title" id="pageTitle"><span class="brand-en">YESPUGOU'S</span><span class="brand-zh">一咝卟狗 校招岗位速递情报站</span><span class="about-wrap"><button class="about-btn" id="aboutBtn" aria-label="网站介绍">i</button><span class="about-pop" id="aboutPop"><b>写给同样在秋招里焦虑的你</b><br>我很感同身受焦虑大多不是来自不够努力，而是来自不确定：岗位散落在几十个公众号和网站里，刷得越多，心越慌。<br>只做一件小事：每天早上 8 点，把全网校招信息整理成一页看得完的清单——官网直链、截止倒计时、AI 岗位匹配，一键到位<br>心理学的答案很简单：对抗焦虑，靠的不是更多信息，而是把不确定变成确定的一小步<br>愿你在这里少刷一点、多投一点，等来属于你的那个 Offer</span></span><span class="sub">开源维护人：歪艾斯阿尔</span></div>
+    <div class="page-title" id="pageTitle"><span class="brand-en">YESPUGOU'S<span class="brand-tag">CAMPUS RADAR</span></span><span class="brand-zh">一咝卟狗 校招岗位速递情报站</span><span class="about-wrap"><button class="about-btn" id="aboutBtn" aria-label="网站介绍">i</button><span class="about-pop" id="aboutPop"><b>写给同样在秋招里焦虑的你</b><br>我很感同身受焦虑大多不是来自不够努力，而是来自不确定：岗位散落在几十个公众号和网站里，刷得越多，心越慌。<br>只做一件小事：每天早上 8 点，把全网校招信息整理成一页看得完的清单——官网直链、截止倒计时、AI 岗位匹配，一键到位<br>心理学的答案很简单：对抗焦虑，靠的不是更多信息，而是把不确定变成确定的一小步<br>愿你在这里少刷一点、多投一点，等来属于你的那个 Offer</span></span><span class="sub">开源维护人：歪艾斯阿尔</span></div>
     <div class="top-actions">
       <button class="all-btn" id="btnExitRec" style="display:none" title="退出 AI 推荐筛选，恢复显示全部岗位">← 退出推荐筛选</button>
       <div class="result-count" id="count"></div>
