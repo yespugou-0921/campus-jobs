@@ -1,0 +1,11 @@
+# 爬虫的本地缓存和临时文件，不用传上 GitHub
+.cache-*.json
+.tmp-*
+*.log
+
+# 每次爬取前的自动备份，页面用不到
+data.js.bak
+
+# 系统文件
+desktop.ini
+Thumbs.db
