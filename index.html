@@ -288,13 +288,8 @@
   .fb-pop.show { opacity: 1; }
   .fb-pop b { color: #FFD98E; word-break: break-all; }
 
-  /* 悬停详情底板：高对比深色，与任何主题的页面底色区分开 */
-  .job-tip { background: #22262E; border-color: rgba(255,255,255,.14); box-shadow: 0 14px 40px rgba(0,0,0,.4); }
-  .job-tip .jt-title { color: #F5F6F8; }
-  .job-tip .jt-role { color: #9FC7FF; }
-  .job-tip .jt-sep { background: rgba(255,255,255,.14); }
-  .job-tip .jt-k { color: #9AA0A8; }
-  .job-tip .jt-v { color: #E8EAEE; }
+  /* 悬停详情底板：跟随主题（浅色主题浅底深字 / 深色主题深底浅字），文字颜色统一用主题变量 */
+  .job-tip { border-color: var(--border); }
   .job-tip .jt-title .new {
     font-size: 10px; background: #E5484D; color: #FFFFFF;
     border-radius: 4px; padding: 1px 5px; vertical-align: 2px; font-weight: 700; letter-spacing: .5px;
@@ -374,55 +369,41 @@
     background: var(--theme); opacity: .55;
     border-radius: 1px; margin-top: 6px;
   }
-  /* 便当盒布局：分类是一格一格的小方盒，"全部/已结束"占整行大盒，统一圆角和间距 */
+  /* 岗位分类：单列滚动列表（简洁清单式） */
   .type-list {
     flex: 1; overflow-y: auto;
     padding: 10px 12px 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    align-content: start;
   }
   .type-item {
-    position: relative;
-    display: flex; flex-direction: column; justify-content: center;
-    gap: 3px;
+    display: flex; align-items: center; gap: 8px;
     width: 100%;
-    min-height: 56px;
     text-align: left;
-    border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255, 255, 255, .3));
-    background: color-mix(in srgb, var(--card-bg) 72%, transparent);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    border: none;
+    background: transparent;
     color: var(--text-2);
-    font-size: 12.5px;
-    line-height: 1.35;
+    font-size: 13px;
     font-family: inherit;
-    padding: 9px 40px 9px 12px;
-    border-radius: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background .15s, color .15s, transform .15s, border-color .15s;
+    transition: background .15s, color .15s;
   }
-  .type-item:hover { color: var(--text); transform: translateY(-1px); border-color: var(--theme); }
-  .type-item.active {
-    background: var(--theme); border-color: var(--theme);
-    color: #FFFFFF; font-weight: 600;
-  }
+  .type-item + .type-item { margin-top: 4px; }
+  .type-item:hover { background: var(--hover-bg); color: var(--text); }
+  .type-item.active { background: var(--theme); color: #FFFFFF; font-weight: 600; }
   .type-item .dot {
-    display: none;   /* 便当盒卡片用边框和底色表达状态，小圆点退役（"已结束"整行除外） */
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border); flex-shrink: 0;
   }
-  .type-item.wide .dot { display: inline; }
+  .type-item.active .dot { background: rgba(255,255,255,.75); }
   .type-item .n {
-    position: absolute; top: 50%; right: 10px;
-    transform: translateY(-50%);
+    margin-left: auto;
     font-size: 11px;
     background: var(--tag-default-bg);
     color: var(--text-3);
     padding: 1px 8px; border-radius: 999px;
-    white-space: nowrap;
   }
   .type-item.active .n { background: rgba(255,255,255,.22); color: #FFFFFF; }
-  .type-item.wide { grid-column: 1 / -1; flex-direction: row; align-items: center; min-height: 44px; }
   .col2-foot {
     font-size: 10px; color: var(--text-3); line-height: 1.8;
     padding: 12px 18px 14px;
@@ -628,7 +609,7 @@
   .chip .cn { font-size: 10.5px; opacity: .75; margin-left: 3px; }
   .chip.more { color: var(--theme); font-weight: 500; }
 
-  /* ===== 筛选条：届数 + 截止时间（Boss直聘式紧凑 chips） ===== */
+  /* ===== 筛选条：截止时间（Boss直聘式紧凑 chips） ===== */
   .filterbar {
     display: flex; align-items: flex-start; gap: 8px 22px; flex-wrap: wrap;
     padding: 9px 28px 11px;
@@ -671,11 +652,11 @@
   .job-tip .jt-row { display: flex; gap: 8px; font-size: 12px; line-height: 1.8; }
   .job-tip .jt-k { color: var(--text-3); width: 54px; flex: none; }
   .job-tip .jt-v { color: var(--text); flex: 1; word-break: break-word; }
-  /* 公司简介正文（悬停卡新版内容） */
-  .job-tip .jt-intro { font-size: 12px; line-height: 1.95; color: #E8EAEE; }
-  .job-tip .jt-intro b { color: #FFD98E; font-weight: 700; }
-  .job-tip .jt-meta { margin-top: 10px; font-size: 10.5px; line-height: 1.7; color: #9AA0A8; }
-  .job-tip .jt-meta b { color: #9FC7FF; font-weight: 600; }
+  /* 公司简介正文（悬停卡新版内容）：颜色全部跟随主题，浅色主题自动深字不突兀 */
+  .job-tip .jt-intro { font-size: 12px; line-height: 1.95; color: var(--text); }
+  .job-tip .jt-intro b { color: var(--theme); font-weight: 700; }
+  .job-tip .jt-meta { margin-top: 10px; font-size: 10.5px; line-height: 1.7; color: var(--text-3); }
+  .job-tip .jt-meta b { color: var(--theme); font-weight: 600; }
 
   /* ========== 岗位卡片网格 ========== */
   .grid {
@@ -1328,13 +1309,8 @@
     <div class="city-chips" id="cityChips"></div>
   </div>
 
-  <!-- 筛选条：届数（多选）+ 投递截止时间（排序/限时），Boss直聘式紧凑横排 -->
+  <!-- 筛选条：投递截止时间（排序/限时），Boss直聘式紧凑横排 -->
   <div class="filterbar" id="filterbar">
-    <div class="fgroup" id="fgGrad">
-      <span class="flabel">届数</span>
-      <span class="chip fchip" data-grad="__all__">全选</span>
-      <div class="fchips" id="gradChips"></div>
-    </div>
     <div class="fgroup" id="fgDl">
       <span class="flabel">截止</span>
       <span class="chip fchip active" data-dl="">默认</span>
@@ -1359,8 +1335,7 @@
   var currentType = "全部";
   var currentCity = "全部";
   var keyword = "";
-  /* 新筛选条状态：届数多选（空数组=不限）+ 截止时间（""=默认 / asc / desc / 3d） */
-  var selGrads = [];
+  /* 新筛选条状态：截止时间（""=默认 / asc / desc / 3d） */
   var dlMode = "";
 
   var grid = document.getElementById("grid");
@@ -1455,7 +1430,7 @@
       currentCity = "全部";   // 换分类时城市也回到"全部"，避免选中的城市在新分类下不存在
       cityKeyword = "";
       citySearch.value = "";
-      selGrads = []; dlMode = "";   // 换分类时新筛选也复位
+      dlMode = "";   // 换分类时截止时间筛选也复位
       buildTypeList();
       buildCity();
       buildFilterbar();
@@ -1492,7 +1467,7 @@
     var keys = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
     var total = 0;
     keys.forEach(function (k) { total += counts[k]; });
-    var html = '<button class="type-item wide active" data-type="全部"><span class="dot"></span>全部<span class="n">' + total + '</span></button>';
+    var html = '<button class="type-item active" data-type="全部"><span class="dot"></span>全部<span class="n">' + total + '</span></button>';
     for (var k = 0; k < keys.length; k++) {
       html += '<button class="type-item" data-type="' + keys[k] + '"><span class="dot"></span>' + keys[k] + '<span class="n">' + counts[keys[k]] + '</span></button>';
     }
@@ -1502,7 +1477,7 @@
       if (railOf(jobs[e]) === currentRail && jobs[e].ended) endedCount++;
     }
     if (endedCount) {
-      html += '<button class="type-item wide type-ended" data-type="__ended__"><span class="dot ended-dot">❗</span>已结束<span class="n">' + endedCount + '</span></button>';
+      html += '<button class="type-item type-ended" data-type="__ended__"><span class="dot ended-dot">❗</span>已结束<span class="n">' + endedCount + '</span></button>';
     }
     typeList.innerHTML = html;
     document.querySelectorAll(".type-item").forEach(function (item) {
@@ -1558,19 +1533,7 @@
     if (moreBtn) moreBtn.addEventListener("click", function () { cityExpanded = !cityExpanded; buildCity(); });
   }
 
-  /* ===== 届次 / 截止时间解析（结果缓存在岗位对象上，9439 条也只算一次） ===== */
-  function gradOf(j) {
-    if (j._grads) return j._grads;
-    var t = j.title || "";
-    var set = {};
-    /* 兼容 "2027届" "2026/2027届" "2025、2026、2027届" 等写法 */
-    var groups = t.match(/(?:19\d{2}|20\d{2})[\s\/、,，·\-]*(?:[\s\/、,，·\-]*(?:19\d{2}|20\d{2})[\s\/、,，·\-]*)*届/g) || [];
-    groups.forEach(function (s) {
-      (s.match(/(19\d{2}|20\d{2})/g) || []).forEach(function (y) { set[y] = 1; });
-    });
-    j._grads = Object.keys(set).sort();
-    return j._grads;
-  }
+  /* ===== 截止时间解析（结果缓存在岗位对象上，9439 条也只算一次） ===== */
   function dlTsOf(j) {
     if (j._dl !== undefined) return j._dl;
     var m = (j.deadline || "").match(/(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})/);
@@ -1578,51 +1541,17 @@
     return j._dl;
   }
 
-  /* ===== 筛选条：届数多选 + 截止时间，数量跟随当前分类统计 ===== */
-  var gradChips = document.getElementById("gradChips");
+  /* ===== 筛选条：截止时间（排序/限时） ===== */
   var filterbar = document.getElementById("filterbar");
   function buildFilterbar() {
     if (favMode) { filterbar.style.display = "none"; return; }
     filterbar.style.display = "";
-    var counts = {}, untagged = 0;
-    for (var i = 0; i < jobs.length; i++) {
-      if (railOf(jobs[i]) !== currentRail) continue;
-      var gs = gradOf(jobs[i]);
-      if (gs.length) gs.forEach(function (y) { counts[y] = (counts[y] || 0) + 1; });
-      else untagged++;
-    }
-    var years = Object.keys(counts).sort();
-    var html = years.map(function (y) {
-      return '<span class="chip fchip" data-grad="' + y + '">' + y + '届<span class="cn">' + counts[y] + '</span></span>';
-    }).join("");
-    if (untagged) html += '<span class="chip fchip" data-grad="__none__">未标注届<span class="cn">' + untagged + '</span></span>';
-    gradChips.innerHTML = html;
-    /* 高亮状态：没选任何届 = "全选"亮；选了若干届则对应的亮 */
-    var allChip = document.querySelector(".fchip[data-grad='__all__']");
-    allChip.classList.toggle("active", selGrads.length === 0);
-    gradChips.querySelectorAll(".fchip").forEach(function (c) {
-      var g = c.getAttribute("data-grad");
-      c.classList.toggle("active", selGrads.indexOf(g) !== -1);
-    });
     document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
       c.classList.toggle("active", c.getAttribute("data-dl") === dlMode);
     });
-    /* 届数：多选切换（gradChips 每次重建 innerHTML，监听器随元素一起换新，不会叠加） */
-    gradChips.querySelectorAll(".fchip").forEach(function (c) {
-      c.addEventListener("click", function () {
-        var g = this.getAttribute("data-grad");
-        var idx = selGrads.indexOf(g);
-        if (idx === -1) selGrads.push(g); else selGrads.splice(idx, 1);
-        buildFilterbar();
-        render();
-      });
-    });
   }
-  /* "全选"和"截止时间"两组 chip 是静态元素：监听器只绑一次，避免重复触发 */
+  /* 截止时间 chip 是静态元素：监听器只绑一次，避免重复触发 */
   (function bindStaticFilterChips() {
-    document.querySelector(".fchip[data-grad='__all__']").addEventListener("click", function () {
-      selGrads = []; buildFilterbar(); render();
-    });
     document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
       c.addEventListener("click", function () {
         var v = this.getAttribute("data-dl");
@@ -1767,10 +1696,10 @@
   var lastFilterSig = "";
 
   function render() {
-    var sig = [currentRail, currentType, currentCity, keyword, recommendMode, favMode, selGrads.join("+"), dlMode].join("|");
+    var sig = [currentRail, currentType, currentCity, keyword, recommendMode, favMode, dlMode].join("|");
     if (sig !== lastFilterSig) { renderLimit = RENDER_STEP; lastFilterSig = sig; }
 
-    /* 收藏模式下隐藏城市条和筛选条（收藏跨所有城市/届数） */
+    /* 收藏模式下隐藏城市条和筛选条（收藏跨所有城市） */
     document.querySelector(".citybar").style.display = favMode ? "none" : "";
     filterbar.style.display = favMode ? "none" : "";
     var NOW = Date.now();
@@ -1789,14 +1718,6 @@
           if (currentType !== "全部" && (j.type || "其他") !== currentType) continue;
         }
         if (currentCity !== "全部" && j.city !== currentCity) continue;
-        /* 届数多选：岗位的届次与所选有交集才保留；"未标注届"匹配没写届次的 */
-        if (selGrads.length) {
-          var gs = gradOf(j), ok = false;
-          for (var g = 0; g < selGrads.length; g++) {
-            if (selGrads[g] === "__none__" ? gs.length === 0 : gs.indexOf(selGrads[g]) !== -1) { ok = true; break; }
-          }
-          if (!ok) continue;
-        }
         /* 三天内截止：只留未来 0~3 天内过期的（必须写明日期） */
         if (dlMode === "3d") {
           var ts3 = dlTsOf(j);
@@ -1952,7 +1873,7 @@
     recommendSet = [];
     currentType = "全部";
     currentCity = "全部";
-    selGrads = []; dlMode = "";
+    dlMode = "";
     buildTypeList();
     buildCity();
     buildFilterbar();
