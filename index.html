@@ -255,6 +255,51 @@
   .rail-setting .ico { font-size: 18px; line-height: 1; }
   .rail-setting:hover { background: var(--hover-bg); color: var(--text); }
 
+  /* 搜索框自动补全下拉 */
+  .search-box, .city-search { position: relative; }
+  .ac-list {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: 0 12px 32px var(--shadow);
+    padding: 6px; z-index: 80; display: none; max-height: 300px; overflow-y: auto;
+  }
+  .ac-list.open { display: block; }
+  .ac-item {
+    padding: 8px 10px; border-radius: 8px; cursor: pointer;
+    font-size: 12.5px; color: var(--text-2);
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .ac-item:hover { background: var(--hover-bg); color: var(--text); }
+  .ac-item b { color: var(--theme); font-weight: 700; }
+  .ac-item .ac-n { font-size: 11px; color: var(--text-3); flex: none; white-space: nowrap; }
+  .ac-item.none { color: var(--text-3); cursor: default; justify-content: center; padding: 12px 10px; }
+  .ac-item.none:hover { background: transparent; }
+
+  /* 反馈邮箱弹层 */
+  .fb-pop {
+    position: fixed; z-index: 90;
+    background: #22262E; color: #E8EAEE;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 10px; padding: 10px 12px;
+    font-size: 12px; line-height: 1.7; max-width: 240px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.35);
+    pointer-events: none; opacity: 0; transition: opacity .12s;
+  }
+  .fb-pop.show { opacity: 1; }
+  .fb-pop b { color: #FFD98E; word-break: break-all; }
+
+  /* 悬停详情底板：高对比深色，与任何主题的页面底色区分开 */
+  .job-tip { background: #22262E; border-color: rgba(255,255,255,.14); box-shadow: 0 14px 40px rgba(0,0,0,.4); }
+  .job-tip .jt-title { color: #F5F6F8; }
+  .job-tip .jt-role { color: #9FC7FF; }
+  .job-tip .jt-sep { background: rgba(255,255,255,.14); }
+  .job-tip .jt-k { color: #9AA0A8; }
+  .job-tip .jt-v { color: #E8EAEE; }
+  .job-tip .jt-title .new {
+    font-size: 10px; background: #E5484D; color: #FFFFFF;
+    border-radius: 4px; padding: 1px 5px; vertical-align: 2px; font-weight: 700; letter-spacing: .5px;
+  }
+
   /* 设置弹层：主题切换 */
   .settings-pop {
     position: fixed;
@@ -640,7 +685,7 @@
   /* 公告档：青绿色，点开是官方招聘公告页（浏览器直接阅读，不唤起微信） */
   .card .apply.info { background: #3E7C6F; }
   .card .apply.info:hover { background: #33665B; }
-  /* 公众号搜索档：微信绿，点开是搜狗微信搜该公司公众号（电脑直接用，不弹下载微信） */
+  /* 公众号搜索档：微信绿，点开搜索该公司的公众号招聘信息（必应结果页，不弹下载微信） */
   .card .apply.wechat { background: #2AAE67; }
   .card .apply.wechat:hover { background: #22915A; }
   /* 搜索档：暖橙色，点开是必应搜索该公司招聘公告 */
@@ -1076,6 +1121,7 @@
   <button class="rail-feature" id="btnDiagnose" title="单击打开：AI 简历诊断"><span class="ico">📋</span>AI诊断<br>简历</button>
   <div class="rail-divider"></div>
   <button class="rail-setting" id="btnSetting"><span class="ico">⚙️</span>设置</button>
+  <button class="rail-setting" id="btnFeedback"><span class="ico">❓</span>反馈</button>
 </nav>
 
 <!-- 设置弹层：主题切换（7 套配色） -->
@@ -1535,8 +1581,8 @@
       return '<a class="apply info" href="' + info + '" target="_blank" rel="noopener noreferrer" title="暂无官网投递链接，先看官方招聘公告了解报名方式">查看招聘公告</a>';
     }
     if (isWechatChannel(j)) {
-      var wq = encodeURIComponent(j.company || "");
-      return '<a class="apply wechat" href="https://weixin.sogou.com/weixin?type=1&query=' + wq + '" target="_blank" rel="noopener noreferrer" title="报名方式在微信公众号，点这里在搜狗微信里搜该公众号（电脑直接打开，无需安装微信）">公众号搜索</a>';
+      var wq = encodeURIComponent((j.company || "") + " 校园招聘 公众号 报名");
+      return '<a class="apply wechat" href="https://www.bing.com/search?q=' + wq + '" target="_blank" rel="noopener noreferrer" title="报名方式在微信公众号，点这里搜索该公司的公众号和招聘信息（必有结果）">公众号搜索</a>';
     }
     var q = encodeURIComponent((j.company || "") + " 校园招聘 报名入口");
     return '<a class="apply search" href="https://www.bing.com/search?q=' + q + '" target="_blank" rel="noopener noreferrer" title="数据源未收录链接，一键搜索该公司招聘公告">搜索招聘入口</a>';
@@ -1550,7 +1596,7 @@
       if (c === "公众号") return "渠道：<b>公众号投递</b>（点「查看招聘公告」直达）";
       return "渠道：<b>" + (c || "公告") + "</b>（点「查看招聘公告」直达）";
     }
-    if (isWechatChannel(j)) return "渠道：<b>公众号投递</b>（点「公众号搜索」查找，无需安装微信）";
+    if (isWechatChannel(j)) return "渠道：<b>公众号投递</b>（点「公众号搜索」一键查找）";
     return "渠道：<b>公众号 / 邮箱</b>（点「搜索招聘入口」查找）";
   }
 
@@ -1653,10 +1699,67 @@
     btnExit.style.display = recommendMode ? "" : "none";
   }
 
+  /* ===== 搜索自动补全：边输入边出候选，点候选直接在页面显示对应岗位；无结果显示暂无相关职位 ===== */
+  function buildAcList(wrap, items, onPick, emptyTip) {
+    var list = wrap.querySelector(".ac-list");
+    if (!list) {
+      list = document.createElement("div");
+      list.className = "ac-list";
+      wrap.appendChild(list);
+    }
+    if (!items.length) {
+      list.innerHTML = '<div class="ac-item none">' + emptyTip + '</div>';
+      list.classList.add("open");
+      return;
+    }
+    list.innerHTML = items.map(function (it, i) {
+      return '<div class="ac-item" data-i="' + i + '"><span>' + it.html + '</span><span class="ac-n">' + it.n + '</span></div>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".ac-item"), function (el) {
+      el.addEventListener("mousedown", function (e) {  /* mousedown 先于 blur，保证点得到 */
+        e.preventDefault();
+        onPick(items[+this.getAttribute("data-i")]);
+        list.classList.remove("open");
+      });
+    });
+    list.classList.add("open");
+  }
+  function closeAc(wrap) {
+    var list = wrap.querySelector(".ac-list");
+    if (list) list.classList.remove("open");
+  }
+  function highlight(text, kw) {
+    var t = esc(String(text || ""));
+    if (!kw) return t;
+    var k = esc(kw).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    try { return t.replace(new RegExp("(" + k + ")", "gi"), "<b>$1</b>"); } catch (e) { return t; }
+  }
+
+  var searchBoxWrap = document.querySelector(".search-box");
   searchInput.addEventListener("input", function () {
     keyword = this.value.trim().toLowerCase();
     render();
+    var v = this.value.trim().toLowerCase();
+    if (!v) { closeAc(searchBoxWrap); return; }
+    var byCo = {}, byTitle = {};
+    for (var i = 0; i < jobs.length; i++) {
+      var co = jobs[i].company || "", ti = jobs[i].title || "";
+      if (co && co.toLowerCase().indexOf(v) !== -1) byCo[co] = (byCo[co] || 0) + 1;
+      if (ti && ti.toLowerCase().indexOf(v) !== -1) byTitle[ti] = (byTitle[ti] || 0) + 1;
+    }
+    var items = [];
+    Object.keys(byCo).sort(function (a, b) { return byCo[b] - byCo[a]; }).slice(0, 5)
+      .forEach(function (co) { items.push({ text: co, html: "🏢 " + highlight(co, v), n: byCo[co] + " 个岗位" }); });
+    Object.keys(byTitle).sort(function (a, b) { return byTitle[b] - byTitle[a]; }).slice(0, 4)
+      .forEach(function (ti) { items.push({ text: ti, html: "💼 " + highlight(ti, v), n: byTitle[ti] + " 个岗位" }); });
+    buildAcList(searchBoxWrap, items, function (it) {
+      searchInput.value = it.text;
+      keyword = it.text.toLowerCase();
+      render();
+      searchInput.blur();
+    }, "暂无相关职位");
   });
+  searchInput.addEventListener("blur", function () { setTimeout(function () { closeAc(searchBoxWrap); }, 120); });
   /* 退出 AI 推荐筛选：只在推荐模式下出现的按钮 */
   document.getElementById("btnExitRec").addEventListener("click", function () {
     recommendMode = false;
@@ -1667,7 +1770,64 @@
     buildCity();
     render();
   });
-  citySearch.addEventListener("input", function () { cityKeyword = this.value; cityExpanded = false; buildCity(); });
+  var cityWrap = document.querySelector(".city-search");
+  citySearch.addEventListener("input", function () {
+    cityKeyword = this.value; cityExpanded = false; buildCity();
+    var v = this.value.trim().toLowerCase();
+    if (!v) { closeAc(cityWrap); return; }
+    var byCity = {};
+    for (var i = 0; i < jobs.length; i++) {
+      var c = jobs[i].city;
+      if (!c || c === "未公布") continue;
+      if (c.toLowerCase().indexOf(v) !== -1) byCity[c] = (byCity[c] || 0) + 1;
+    }
+    var items = Object.keys(byCity).sort(function (a, b) { return byCity[b] - byCity[a]; }).slice(0, 8)
+      .map(function (c) { return { text: c, html: "📍 " + highlight(c, v), n: byCity[c] + " 个岗位" }; });
+    buildAcList(cityWrap, items, function (it) {
+      citySearch.value = it.text;
+      currentCity = it.text;
+      cityKeyword = "";
+      buildCity();
+      render();
+      citySearch.blur();
+    }, "暂无相关职位");
+  });
+  citySearch.addEventListener("blur", function () { setTimeout(function () { closeAc(cityWrap); }, 120); });
+
+  /* ===== 问题反馈按钮：悬停提示邮箱，点击一键复制 ===== */
+  var FEEDBACK_EMAIL = "ysr040921@qq.com";
+  var btnFeedback = document.getElementById("btnFeedback");
+  var fbPop = document.createElement("div");
+  fbPop.className = "fb-pop";
+  document.body.appendChild(fbPop);
+  function showFbPop(msg) {
+    fbPop.innerHTML = msg;
+    fbPop.classList.add("show");
+    var r = btnFeedback.getBoundingClientRect();
+    fbPop.style.left = (r.right + 10) + "px";
+    fbPop.style.top = Math.max(8, r.top - 6) + "px";
+  }
+  btnFeedback.addEventListener("mouseenter", function () {
+    showFbPop('使用过程中如有问题反馈，可联系创作者邮箱：<b>' + FEEDBACK_EMAIL + '</b><br>点一下按钮即可复制邮箱');
+  });
+  btnFeedback.addEventListener("mouseleave", function () { fbPop.classList.remove("show"); });
+  function fbFallback(done) {
+    var ta = document.createElement("textarea");
+    ta.value = FEEDBACK_EMAIL;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { showFbPop('复制失败，请手动记录邮箱：<b>' + FEEDBACK_EMAIL + '</b>'); }
+    document.body.removeChild(ta);
+  }
+  btnFeedback.addEventListener("click", function () {
+    var done = function () {
+      showFbPop('✅ 邮箱已复制：<b>' + FEEDBACK_EMAIL + '</b><br>快去写邮件反馈吧');
+      setTimeout(function () { fbPop.classList.remove("show"); }, 2400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(FEEDBACK_EMAIL).then(done, function () { fbFallback(done); });
+    } else fbFallback(done);
+  });
 
   /* ===== 收藏：点星星收藏/取消（事件委托，9439 张卡也只挂一个监听） ===== */
   grid.addEventListener("click", function (e) {
@@ -1749,7 +1909,7 @@
     if (j.ended) chDesc = "该岗位已过截止日期，投递通道已关闭";
     else if (officialUrlOf(j)) chDesc = "官网投递（点右下角「直达官网投递」）";
     else if (infoUrlOf(j)) chDesc = (ch === "邮箱" ? "邮箱投递" : "公众号 / 公告投递") + "，暂无官网链接（点右下角「查看招聘公告」了解报名方式）";
-    else if (isWechatChannel(j)) chDesc = "公众号投递，报名方式在微信公众号（点右下角「公众号搜索」查找，无需安装微信）";
+    else if (isWechatChannel(j)) chDesc = "公众号投递，报名方式在微信公众号（点右下角「公众号搜索」一键查找）";
     else chDesc = "公众号 / 邮箱投递，暂无官网链接（点右下角「搜索招聘入口」一键查找）";
     rows += '<div class="jt-row"><span class="jt-k">投递</span><span class="jt-v">' + chDesc + '</span></div>';
     jobTip.innerHTML =
