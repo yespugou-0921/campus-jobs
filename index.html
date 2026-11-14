@@ -327,7 +327,7 @@
 
   /* 悬停详情底板：跟随主题（浅色主题浅底深字 / 深色主题深底浅字），文字颜色统一用主题变量 */
   .job-tip { border-color: var(--border); }
-  .job-tip .jt-title .new {
+  .jt-c .jt-title .new {
     font-size: 10px; background: #E5484D; color: #FFFFFF;
     border-radius: 4px; padding: 1px 5px; vertical-align: 2px; font-weight: 700; letter-spacing: .5px;
   }
@@ -698,17 +698,17 @@
 
   /* 岗位卡片悬停详情浮层 */
   .job-tip { max-width: 340px; padding: 14px 16px; }
-  .job-tip .jt-title { font-size: 14.5px; font-weight: 800; color: var(--text); line-height: 1.4; }
-  .job-tip .jt-role { font-size: 12.5px; color: var(--theme); font-weight: 600; margin: 3px 0 9px; }
-  .job-tip .jt-sep { height: 1px; background: var(--border); margin: 9px 0; }
-  .job-tip .jt-row { display: flex; gap: 8px; font-size: 12px; line-height: 1.8; }
-  .job-tip .jt-k { color: var(--text-3); width: 54px; flex: none; }
-  .job-tip .jt-v { color: var(--text); flex: 1; word-break: break-word; }
+  .jt-c .jt-title { font-size: 14.5px; font-weight: 800; color: var(--text); line-height: 1.4; }
+  .jt-c .jt-role { font-size: 12.5px; color: var(--theme); font-weight: 600; margin: 3px 0 9px; }
+  .jt-c .jt-sep { height: 1px; background: var(--border); margin: 9px 0; }
+  .jt-c .jt-row { display: flex; gap: 8px; font-size: 12px; line-height: 1.8; }
+  .jt-c .jt-k { color: var(--text-3); width: 54px; flex: none; }
+  .jt-c .jt-v { color: var(--text); flex: 1; word-break: break-word; }
   /* 公司简介正文（悬停卡新版内容）：颜色全部跟随主题，浅色主题自动深字不突兀 */
-  .job-tip .jt-intro { font-size: 12px; line-height: 1.95; color: var(--text); }
-  .job-tip .jt-intro b { color: var(--theme); font-weight: 700; }
-  .job-tip .jt-meta { margin-top: 10px; font-size: 10.5px; line-height: 1.7; color: var(--text-3); }
-  .job-tip .jt-meta b { color: var(--theme); font-weight: 600; }
+  .jt-c .jt-intro { font-size: 12px; line-height: 1.95; color: var(--text); }
+  .jt-c .jt-intro b { color: var(--theme); font-weight: 700; }
+  .jt-c .jt-meta { margin-top: 10px; font-size: 10.5px; line-height: 1.7; color: var(--text-3); }
+  .jt-c .jt-meta b { color: var(--theme); font-weight: 600; }
 
   /* ========== 岗位卡片网格 ========== */
   .grid {
@@ -1274,6 +1274,109 @@
     .search-box input, .city-search input { font-size: 16px; }
     .city-search input { width: 120px; }
     footer { padding: 16px 14px 76px; }
+
+    /* ===== 批次1：触控目标 ≥44px（苹果/谷歌规范），相邻间距加大 ===== */
+    .city-chips .chip, .filterbar .chip { height: 44px; padding: 0 18px; display: inline-flex; align-items: center; font-size: 14px; }
+    .city-chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .city-chips .chip { flex: none; }
+    .apply { height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; font-size: 14.5px; }
+    .fav-star { width: 44px; height: 44px; font-size: 24px; margin-left: 6px; }
+    .m-cat-btn { height: 42px; }
+    .more-btn { display: none; }   /* 手机改自动无限加载，按钮退场 */
+
+    /* ===== 批次2：首屏瘦身 ===== */
+    .notice-bar { display: none; }                 /* 跑马灯横幅手机去掉 */
+    .page-title .sub { display: none; }            /* 「开源维护人」手机藏进介绍浮层 */
+    .page-title .brand-zh { font-size: 11px; letter-spacing: 1px; }
+    .m-filter-bar { display: flex; align-items: center; padding: 2px 14px 8px; }
+    .m-filter-btn { height: 42px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
+    .m-filter-btn .mfc { color: var(--theme); margin-left: 4px; }
+    /* 筛选条被 JS 移进底部弹层后要恢复显示（弹层里竖排） */
+    .bottom-sheet .filterbar { display: flex !important; flex-direction: column; gap: 14px; }
+    .bottom-sheet .filterbar .fgroup { flex-wrap: wrap; gap: 10px; }
+  }
+
+  /* ========== 手机底部弹层（岗位详情 / 筛选）：触屏 JS 调起，桌面端不会触发 ========== */
+  .m-filter-bar { display: none; }   /* 桌面默认隐藏，媒体查询里才放开 */
+  .sheet-mask {
+    position: fixed; left: 0; right: 0; top: 0; bottom: 0;
+    background: rgba(0, 0, 0, .5);
+    z-index: 90;
+    opacity: 0; visibility: hidden;
+    transition: opacity .22s, visibility .22s;
+  }
+  .sheet-mask.open { opacity: 1; visibility: visible; }
+  .bottom-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 91;
+    background: var(--card-bg);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -12px 44px var(--shadow);
+    transform: translateY(105%);
+    transition: transform .26s ease;
+    max-height: 80vh;
+    display: flex; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+  .sheet-grab { width: 42px; height: 4px; border-radius: 2px; background: var(--text-3); opacity: .45; margin: 10px auto 0; flex: none; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 18px 0; flex: none; gap: 12px; }
+  .sh-title { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.4; }
+  .sheet-close {
+    width: 44px; height: 44px; flex: none;
+    border: none; border-radius: 50%;
+    background: var(--tag-default-bg, rgba(128, 128, 128, .16));
+    color: var(--text); font-size: 17px; font-family: inherit;
+    cursor: pointer;
+  }
+  .sheet-body { overflow-y: auto; padding: 12px 18px 16px; -webkit-overflow-scrolling: touch; }
+  .sheet-foot { flex: none; padding: 10px 18px 14px; border-top: 1px solid var(--border); display: flex; gap: 12px; align-items: center; }
+  .sheet-foot .apply { flex: 1; height: 48px; font-size: 15.5px; }
+  .sheet-fav { width: 48px; height: 48px; font-size: 26px; margin-left: 0; flex: none; }
+  /* 弹层里的岗位信息比悬停卡大一号 */
+  .bottom-sheet .jt-c .jt-title { font-size: 18px; }
+  .bottom-sheet .jt-c .jt-intro { font-size: 13.5px; line-height: 2; }
+  .sh-role { font-size: 15px; color: var(--theme); font-weight: 700; margin-bottom: 8px; line-height: 1.6; }
+  .sh-time { font-size: 12.5px; color: var(--text-2); margin-top: 8px; }
+  .sh-channel { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  .m-filter-done { flex: 1; height: 48px; font-size: 16px; }
+
+  /* ========== 骨架屏：data.js 解析期间的占位卡（render 后自动被真实岗位替换） ========== */
+  .sk-card {
+    height: 172px; border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(100deg, var(--card-bg) 40%, color-mix(in srgb, var(--text) 7%, var(--card-bg)) 50%, var(--card-bg) 60%);
+    background-size: 200% 100%;
+    animation: sk-shimmer 1.15s infinite linear;
+  }
+  @keyframes sk-shimmer { to { background-position: -200% 0; } }
+
+  /* ========== 下拉刷新提示气泡 ========== */
+  .ptr-tip {
+    position: fixed; top: 12px; left: 50%;
+    transform: translateX(-50%) translateY(-64px);
+    z-index: 120;
+    background: var(--theme); color: #fff;
+    font-size: 12.5px; font-weight: 700;
+    padding: 8px 18px; border-radius: 999px;
+    box-shadow: 0 4px 14px var(--shadow);
+    transition: transform .18s;
+    pointer-events: none;
+  }
+  .ptr-tip.show { transform: translateX(-50%) translateY(0); }
+
+  /* ========== 触屏按压反馈：所有可点元素按下微缩，告别"点了没反应" ========== */
+  @media (hover: none) {
+    .chip, .apply, .m-cat-btn, .more-btn, .rail-btn, .rail-feature, .rail-setting,
+    .m-filter-btn, .sheet-close, .fav-star, .swatch, .btn, .pick-link, .paste-link, .clear-btn {
+      transition: transform .08s, opacity .08s;
+    }
+    .chip:active, .apply:active, .m-cat-btn:active, .more-btn:active, .rail-btn:active,
+    .rail-feature:active, .rail-setting:active, .m-filter-btn:active, .sheet-close:active,
+    .fav-star:active, .swatch:active, .btn:active, .pick-link:active, .paste-link:active, .clear-btn:active {
+      transform: scale(.93); opacity: .8;
+    }
+    .card:active { filter: brightness(.96); }
   }
 </style>
 </head>
@@ -1431,8 +1534,11 @@
     </div>
   </div>
 
-  <!-- 滚动公告横幅：今日新增 + 重要国企截止倒计时 -->
+  <!-- 滚动公告横幅：今日新增 + 重要国企截止倒计时（手机端隐藏） -->
   <div class="notice-bar" id="noticeBar"><span class="nb-ico">📢</span><div class="nb-viewport"><div class="nb-track" id="nbTrack"></div></div></div>
+
+  <!-- 手机端筛选入口：点开底部弹层选届数/截止（≤768px 才显示） -->
+  <div class="m-filter-bar" id="mFilterBar"><button class="m-filter-btn" id="mFilterBtn" type="button">⚙ 筛选<span id="mFilterCount"></span></button></div>
 
   <!-- 城市筛选条：横排标签，放不下再展开 -->
   <div class="citybar">
@@ -1459,7 +1565,11 @@
     </div>
   </div>
 
-  <div class="grid" id="grid"></div>
+  <div class="grid" id="grid">
+    <!-- 骨架屏：data.js 解析期间的占位卡片（render() 一跑就会被真实岗位替换） -->
+    <div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div>
+    <div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div>
+  </div>
 
   <footer>
     数据来源于 GitHub 开源项目 xixicc2027（公开数据聚合，每日更新）· 投递请以各企业官方页面为准<br>
@@ -1477,6 +1587,10 @@
   /* 新筛选条状态：届数多选（空数组=不限）+ 截止时间（""=默认 / asc / desc / 3d） */
   var selGrads = [];
   var dlMode = "";
+
+  /* 触屏设备判定（手机/平板：无悬停能力）：悬停简介、跟手等鼠标交互全部让位给点击+底部弹层 */
+  var TOUCH = false;
+  try { TOUCH = window.matchMedia("(hover: none)").matches; } catch (e) { TOUCH = "ontouchstart" in window; }
 
   var grid = document.getElementById("grid");
   var cityChips = document.getElementById("cityChips");
@@ -1874,11 +1988,19 @@
 
   function render() {
     var sig = [currentRail, currentType, selCities.join("+"), selGrads.join("+"), keyword, recommendMode, favMode, dlMode].join("|");
-    if (sig !== lastFilterSig) { renderLimit = RENDER_STEP; lastFilterSig = sig; }
+    if (sig !== lastFilterSig) { renderLimit = TOUCH ? 20 : RENDER_STEP; lastFilterSig = sig; }
 
     /* 收藏模式下隐藏城市条和筛选条（收藏跨所有城市） */
     document.querySelector(".citybar").style.display = favMode ? "none" : "";
     filterbar.style.display = favMode ? "none" : "";
+    /* 手机端筛选入口：收藏模式一起藏，顺便更新已选条件数 */
+    var mfbBar = document.getElementById("mFilterBar");
+    if (mfbBar) mfbBar.style.display = favMode ? "none" : "";
+    var mfc = document.getElementById("mFilterCount");
+    if (mfc) {
+      var fn = selGrads.length + (dlMode ? 1 : 0);
+      mfc.textContent = fn ? " · 已选 " + fn : "";
+    }
     var NOW = Date.now();
 
     var matched = [];
@@ -1958,12 +2080,13 @@
       grid.appendChild(card);
     }
 
-    /* 还有没画完的 → 加载更多按钮 */
+    /* 还有没画完的 → 桌面端"加载更多"按钮（手机端走滚动自动加载，按钮被 CSS 隐藏） */
+    window.__jobMore = ordered.length - renderLimit;
     if (ordered.length > renderLimit) {
       var more = document.createElement("button");
       more.className = "more-btn";
       more.textContent = "还有 " + (ordered.length - renderLimit) + " 个岗位，点击加载更多";
-      more.addEventListener("click", function () { renderLimit += 300; render(); });
+      more.addEventListener("click", function () { renderLimit += TOUCH ? 20 : 300; render(); });
       grid.appendChild(more);
     }
 
@@ -1986,7 +2109,7 @@
       : '共 <b>' + ordered.length + '</b> 个岗位' +
       (currentType !== "__ended__" && endedTotal ? '<span class="ended-mini">❗ 含已结束 ' + endedTotal + ' 个（排最后）</span>' : '') +
       (recommendMode ? '<span class="rec-flag">🎯 AI 推荐筛选中</span>' : '') +
-      '<div class="count-meta">数据截至 ' + (window.DATA_GENERATED_AT || "今日") + '<br>每日 8:00 自动更新最新岗位</div>';
+      '<div class="count-meta">数据截至 ' + (window.DATA_GENERATED_AT || "今日") + ' · 每日 8:00 自动更新最新岗位</div>';
     /* 顶部"退出推荐筛选"按钮只在推荐模式出现 */
     var btnExit = document.getElementById("btnExitRec");
     btnExit.style.display = recommendMode ? "" : "none";
@@ -2148,19 +2271,23 @@
   });
 
   /* ===== 收藏：点星星收藏/取消（事件委托，9439 张卡也只挂一个监听） ===== */
-  grid.addEventListener("click", function (e) {
-    var s = e.target.closest ? e.target.closest(".fav-star") : null;
-    if (!s) return;
-    var k = decodeURIComponent(s.getAttribute("data-fav"));
+  function toggleFav(k, btn) {
     var idx = favKeys.indexOf(k);
-    if (idx === -1) { favKeys.push(k); s.classList.add("on"); s.textContent = "★"; s.title = "取消收藏"; }
-    else {
+    if (idx === -1) {
+      favKeys.push(k);
+      if (btn) { btn.classList.add("on"); btn.textContent = "★"; btn.title = "取消收藏"; }
+    } else {
       favKeys.splice(idx, 1);
-      s.classList.remove("on"); s.textContent = "☆"; s.title = "收藏这个岗位";
-      if (favMode) { render(); return; }   /* 收藏页里取消 → 卡片立刻消失 */
+      if (btn) { btn.classList.remove("on"); btn.textContent = "☆"; btn.title = "收藏这个岗位"; }
+      if (favMode) render();   /* 收藏页里取消 → 卡片立刻消失 */
     }
     saveFavs();
     updateFavCount();
+  }
+  grid.addEventListener("click", function (e) {
+    var s = e.target.closest ? e.target.closest(".fav-star") : null;
+    if (!s) return;
+    toggleFav(decodeURIComponent(s.getAttribute("data-fav")), s);
   });
 
   /* 左栏「我的收藏」：点击只看收藏的岗位 */
@@ -2954,9 +3081,8 @@
     return "";
   }
 
-  /* 鼠标在卡片上看不到浮层时（例如触屏），点一下也能看 */
-  function fillJobTip(j) {
-    /* 悬停卡 = 公司简介卡：不再重复卡片上已有的岗位信息 */
+  /* 公司简介卡内容（悬停卡 + 手机详情弹层共用）：不在重复卡片已有岗位信息 */
+  function companyIntroHtml(j) {
     var intro = companyIntroOf(j.company || "");
     var body;
     if (intro) {
@@ -2979,9 +3105,12 @@
     var meta = '<div class="jt-meta">';
     if (domain) meta += '校招官网：<b>' + esc(domain) + '</b> · ';
     meta += '资料整理自公开信息，以官方公告为准</div>';
-    jobTip.innerHTML =
-      '<div class="jt-title">' + esc(j.company) + (j.isNew ? ' <span class="new">NEW</span>' : '') + '</div>' +
+    return '<div class="jt-title">' + esc(j.company) + (j.isNew ? ' <span class="new">NEW</span>' : '') + '</div>' +
       '<div class="jt-sep"></div>' + body + meta;
+  }
+
+  function fillJobTip(j) {
+    jobTip.innerHTML = '<div class="jt-c">' + companyIntroHtml(j) + '</div>';
   }
 
   /* 简介卡跟手：以鼠标坐标为锚点弹出，鼠标移动时卡片实时跟随（超出屏幕自动翻转/收拢） */
@@ -3010,12 +3139,14 @@
   }
 
   grid.addEventListener("mousemove", function (e) {
+    if (TOUCH) return;   /* 手机没有悬停，鼠标交互全部跳过 */
     lastMouse.x = e.clientX; lastMouse.y = e.clientY;
     /* 已弹出的简介卡实时跟随鼠标 */
     if (hoverCard && jobTip.classList.contains("show")) placeTipAtMouse(jobTip, e.clientX, e.clientY);
   });
 
   grid.addEventListener("mouseover", function (e) {
+    if (TOUCH) return;   /* 手机：点卡片打开详情弹层，绝不弹悬停简介 */
     lastMouse.x = e.clientX; lastMouse.y = e.clientY;
     var card = e.target.closest ? e.target.closest(".card") : null;
     if (!card || card.parentNode !== grid) { clearHover(); hideJobTip(); return; }
@@ -3032,6 +3163,7 @@
     }, HOVER_DELAY);
   });
   grid.addEventListener("mouseout", function (e) {
+    if (TOUCH) return;
     var card = e.target.closest ? e.target.closest(".card") : null;
     var to = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest(".card") : null;
     if (card && card === to) return;   /* 还在同一张卡片内部移动，不收起 */
@@ -3040,6 +3172,146 @@
   });
   grid.addEventListener("mouseleave", function () { clearHover(); hideJobTip(); });
   window.addEventListener("scroll", function () { clearHover(); hideJobTip(); hideCityTip(); }, true);
+
+  /* ========================================================
+     手机端：底部弹层体系（岗位详情 / 筛选）+ 无限滚动 + 下拉刷新
+     触屏专用（TOUCH = 无悬停能力的设备），桌面端一行不碰
+     ======================================================== */
+
+  /* --- 通用开关 --- */
+  var sheetMask = document.createElement("div");
+  sheetMask.className = "sheet-mask";
+  document.body.appendChild(sheetMask);
+  var bodyOverflowSaved = false;
+  function lockScroll() { if (!bodyOverflowSaved) { document.body.style.overflow = "hidden"; bodyOverflowSaved = true; } }
+  function unlockScroll() { if (bodyOverflowSaved) { document.body.style.overflow = ""; bodyOverflowSaved = false; } }
+
+  /* --- 岗位详情弹层：手机上点卡片主体打开（投递按钮/收藏星不触发） --- */
+  var jobSheet = document.createElement("div");
+  jobSheet.className = "bottom-sheet";
+  document.body.appendChild(jobSheet);
+
+  function closeSheets() {
+    sheetMask.classList.remove("open");
+    jobSheet.classList.remove("open");
+    if (window.__closeFilterSheet) window.__closeFilterSheet();   /* 手机筛选弹层：顺带把筛选条放回原位（旋转屏兜底） */
+    unlockScroll();
+  }
+  sheetMask.addEventListener("click", closeSheets);
+
+  function openJobSheet(j) {
+    jobSheet.innerHTML =
+      '<div class="sheet-grab"></div>' +
+      '<div class="sheet-head"><div class="sh-title">' + esc(j.company) + (j.isNew && !j.ended ? ' <span class="new">NEW</span>' : '') + '</div>' +
+      '<button class="sheet-close" type="button" aria-label="关闭">✕</button></div>' +
+      '<div class="sheet-body">' +
+        '<div class="sh-role">' + esc(j.title) + '</div>' +
+        '<div class="tags">' +
+          (j.city === "未公布" ? "" : '<span class="tag city">📍 ' + esc(j.city) + '</span>') +
+          '<span class="tag ' + tagClass(j.type) + '">' + esc(j.type || "其他") + '</span>' +
+          (j.batch ? '<span class="tag batch">' + batchTagText(j) + '</span>' : '') +
+        '</div>' +
+        '<div class="sh-time">⏰ 截止 ' + esc(j.deadline) + ' · 更新 ' + esc(j.updated || "—") + '</div>' +
+        '<div class="sh-channel">' + channelText(j) + '</div>' +
+        '<div class="jt-sep"></div>' +
+        '<div class="jt-c">' + companyIntroHtml(j) + '</div>' +
+      '</div>' +
+      '<div class="sheet-foot">' + applyBtnHtml(j) +
+        '<button class="fav-star sheet-fav' + (isFav(j) ? " on" : "") + '" data-fav="' + encodeURIComponent(jobKey(j)) + '" title="' + (isFav(j) ? "取消收藏" : "收藏这个岗位") + '">' + (isFav(j) ? "★" : "☆") + '</button>' +
+      '</div>';
+    jobSheet.querySelector(".sheet-close").addEventListener("click", closeSheets);
+    sheetMask.classList.add("open");
+    jobSheet.classList.add("open");
+    lockScroll();
+  }
+  /* 弹层里的收藏星（弹层在 grid 外，需要自己的委托） */
+  jobSheet.addEventListener("click", function (e) {
+    var s = e.target.closest ? e.target.closest(".fav-star") : null;
+    if (!s) return;
+    toggleFav(decodeURIComponent(s.getAttribute("data-fav")), s);
+  });
+
+  /* 手机上点卡片主体 = 详情弹层（投递链接/收藏星/加载更多除外） */
+  grid.addEventListener("click", function (e) {
+    if (!TOUCH) return;
+    if (e.target.closest(".fav-star") || e.target.closest(".apply") || e.target.closest(".more-btn")) return;
+    var card = e.target.closest(".card");
+    if (!card || card.parentNode !== grid) return;
+    var idx = parseInt(card.getAttribute("data-idx"), 10);
+    if (isNaN(idx) || !jobs[idx]) return;
+    openJobSheet(jobs[idx]);
+  });
+
+  /* --- 手机筛选弹层：把筛选条（届数/截止）移进底部弹层，完成放回原位 --- */
+  (function () {
+    var mBtn = document.getElementById("mFilterBtn");
+    if (!mBtn) return;
+    var fb = document.getElementById("filterbar");
+    var sheet = document.createElement("div");
+    sheet.className = "bottom-sheet";
+    sheet.id = "mFilterSheet";
+    sheet.innerHTML =
+      '<div class="sheet-grab"></div>' +
+      '<div class="sheet-head"><div class="sh-title">筛选</div>' +
+      '<button class="sheet-close" type="button" aria-label="关闭">✕</button></div>' +
+      '<div class="sheet-body sheet-filters"></div>' +
+      '<div class="sheet-foot"><button class="btn m-filter-done" type="button">完成</button></div>';
+    document.body.appendChild(sheet);
+    var home = fb.parentNode, homeNext = fb.nextSibling, moved = false;
+    function openFilter() {
+      if (!moved) { sheet.querySelector(".sheet-filters").appendChild(fb); moved = true; }
+      sheetMask.classList.add("open");
+      sheet.classList.add("open");
+      lockScroll();
+    }
+    function closeFilter() {
+      sheetMask.classList.remove("open");
+      sheet.classList.remove("open");
+      if (moved) { home.insertBefore(fb, homeNext); moved = false; }
+      unlockScroll();
+    }
+    mBtn.addEventListener("click", openFilter);
+    sheet.querySelector(".sheet-close").addEventListener("click", closeFilter);
+    sheet.querySelector(".m-filter-done").addEventListener("click", closeFilter);
+    window.__closeFilterSheet = closeFilter;   /* 供 closeSheets 兜底调用 */
+  })();
+
+  /* --- 无限滚动：手机滑到接近底部自动追加 20 张卡，代替"加载更多"按钮 --- */
+  var scrollBusy = false;
+  window.addEventListener("scroll", function () {
+    if (!TOUCH || scrollBusy) return;
+    if (!(window.__jobMore > 0)) return;
+    if (window.innerHeight + window.scrollY < document.documentElement.scrollHeight - 700) return;
+    scrollBusy = true;
+    setTimeout(function () { scrollBusy = false; }, 150);
+    renderLimit += 20;
+    render();
+  }, { passive: true });
+
+  /* --- 下拉刷新：在页面顶部继续下拉出现提示气泡，松手刷新（配合每日 8 点更新心智） --- */
+  (function () {
+    if (!TOUCH) return;
+    var ind = document.createElement("div");
+    ind.className = "ptr-tip";
+    ind.textContent = "↓ 下拉刷新";
+    document.body.appendChild(ind);
+    var sy = 0, armed = false, ready = false;
+    document.addEventListener("touchstart", function (e) {
+      if (window.scrollY <= 0) { sy = e.touches[0].clientY; armed = true; ready = false; }
+      else armed = false;
+    }, { passive: true });
+    document.addEventListener("touchmove", function (e) {
+      if (!armed) return;
+      var d = e.touches[0].clientY - sy;
+      if (d > 80 && window.scrollY <= 0) { ready = true; ind.textContent = "↻ 松开刷新"; ind.classList.add("show"); }
+      else { ready = false; ind.classList.remove("show"); }
+    }, { passive: true });
+    document.addEventListener("touchend", function () {
+      if (ready) { location.reload(); return; }
+      ind.classList.remove("show");
+      armed = false;
+    }, { passive: true });
+  })();
 
   buildRailCounts();
   updateFavCount();
@@ -3673,6 +3945,18 @@
   document.getElementById("pasteToggle").addEventListener("click", function () {
     document.getElementById("pasteBox").classList.toggle("open");
   });
+
+  /* 手机端上传区文案：没有"拖拽"，主打"点击选择文件 + 粘贴文字"两条路 */
+  if (TOUCH) {
+    var dzMain = document.querySelector("#dropzone .dz-main");
+    var dzSub = document.querySelector("#dropzone .dz-sub");
+    if (dzMain) dzMain.textContent = "点击这里选择简历文件上传";
+    if (dzSub) dzSub.textContent = "支持 Word(.docx) / 文本文件 · 手机上建议用下面第二种方式";
+    var aiSub = document.querySelector("#aiMask .modal-sub");
+    if (aiSub) aiSub.textContent = "点击上传简历文件，或直接粘贴简历文字，自动诊断、匹配站内校招岗位";
+    var pt2 = document.getElementById("pasteToggle");
+    if (pt2) pt2.textContent = "📋 直接粘贴简历文字（手机推荐：打开简历截图 → 复制文字 → 粘到这里）";
+  }
   document.getElementById("btnPasteGo").addEventListener("click", function () {
     startAnalyze(document.getElementById("pasteText").value);
   });
