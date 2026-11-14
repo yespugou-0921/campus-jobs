@@ -279,18 +279,18 @@
   /* 搜索框一键清除小 ×：输入框有内容才出现 */
   .clear-btn {
     position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
-    width: 18px; height: 18px; line-height: 16px;
-    border: none; border-radius: 50%;
+    width: 22px; height: 22px; line-height: 20px;
+    border: 1px solid var(--border, rgba(128,128,128,.35)); border-radius: 50%;
     background: var(--tag-default-bg, rgba(128,128,128,.18));
-    color: var(--text-2);
-    font-size: 13px; font-family: inherit;
+    color: var(--text-1);
+    font-size: 15px; font-family: inherit;
     padding: 0; cursor: pointer;
     text-align: center;
     transition: background .15s, color .15s;
   }
-  .clear-btn:hover { background: var(--theme); color: #fff; }
-  .clear-sm { width: 15px; height: 15px; line-height: 13px; font-size: 11px; right: 6px; }
-  #searchInput, #citySearch { padding-right: 30px; }
+  .clear-btn:hover { background: var(--theme); color: #fff; border-color: var(--theme); }
+  .clear-sm { width: 18px; height: 18px; line-height: 16px; font-size: 12px; right: 6px; }
+  #searchInput, #citySearch { padding-right: 36px; }
   .ac-list {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
     background: var(--card-bg); border: 1px solid var(--border);
@@ -1908,7 +1908,7 @@
       : '共 <b>' + ordered.length + '</b> 个岗位' +
       (currentType !== "__ended__" && endedTotal ? '<span class="ended-mini">❗ 含已结束 ' + endedTotal + ' 个（排最后）</span>' : '') +
       (recommendMode ? '<span class="rec-flag">🎯 AI 推荐筛选中</span>' : '') +
-      '<div class="count-meta">数据截至 2026/11/13 18:00<br>每日 8:00 自动更新最新岗位</div>';
+      '<div class="count-meta">数据截至 ' + (window.DATA_GENERATED_AT || "今日") + '<br>每日 8:00 自动更新最新岗位</div>';
     /* 顶部"退出推荐筛选"按钮只在推荐模式出现 */
     var btnExit = document.getElementById("btnExitRec");
     btnExit.style.display = recommendMode ? "" : "none";

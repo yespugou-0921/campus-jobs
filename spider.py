@@ -563,14 +563,18 @@ def write_data_js(jobs):
         with open(DATA_FILE + ".bak", "w", encoding="utf-8") as f:
             f.write(old)
 
+    # 统一用北京时间（GitHub Actions 服务器是 UTC，直接 now() 会差 8 小时）
+    now_bj = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+    stamp = now_bj.strftime("%Y-%m-%d %H:%M")
     header = (
         "// 数据文件：由 spider.py 自动生成，不需要手工编辑\n"
         "// 数据来源：GitHub 开源项目 xixicc186/xixicc2027 + HU-eun/campus-recruitment（每日更新）\n"
         "// 生成时间：%s\n"
-        % datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        % stamp
     )
     # 不加缩进，控制文件体积（数据由机器人维护，不需要人工可读）
-    body = "var JOBS = " + json.dumps(jobs, ensure_ascii=False, separators=(",", ":")) + ";\n"
+    body = ('var DATA_GENERATED_AT = "%s";\nvar JOBS = ' % stamp
+            + json.dumps(jobs, ensure_ascii=False, separators=(",", ":")) + ";\n")
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         f.write(header + body)
 
