@@ -1275,11 +1275,11 @@
     .city-search input { width: 120px; }
     footer { padding: 16px 14px 76px; }
 
-    /* ===== 批次1：触控目标 ≥44px（苹果/谷歌规范），相邻间距加大 ===== */
-    .city-chips .chip, .filterbar .chip { height: 44px; padding: 0 18px; display: inline-flex; align-items: center; font-size: 14px; }
+    /* ===== 筛选 chip：用户反馈三行太占地方，压扁（32px 高，保留可点性） ===== */
+    .city-chips .chip, .filterbar .chip { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; font-size: 13px; }
     .city-chips { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .city-chips .chip { flex: none; }
-    .apply { height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; font-size: 14.5px; }
+    .apply { height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; font-size: 14px; }
     .fav-star { width: 44px; height: 44px; font-size: 24px; margin-left: 6px; }
     .m-cat-btn { height: 42px; }
     .more-btn { display: none; }   /* 手机改自动无限加载，按钮退场 */
@@ -1292,8 +1292,9 @@
     .m-filter-btn { height: 42px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
     .m-filter-btn .mfc { color: var(--theme); margin-left: 4px; }
     /* 筛选条被 JS 移进底部弹层后要恢复显示（弹层里竖排） */
-    .bottom-sheet .filterbar { display: flex !important; flex-direction: column; gap: 14px; }
-    .bottom-sheet .filterbar .fgroup { flex-wrap: wrap; gap: 10px; }
+    .bottom-sheet .filterbar { display: flex !important; flex-direction: column; gap: 9px; }
+    .bottom-sheet .filterbar .fgroup { flex-wrap: wrap; gap: 7px; }
+    .bottom-sheet .filterbar .fchips { gap: 7px; }
   }
 
   /* ========== 手机底部弹层（岗位详情 / 筛选）：触屏 JS 调起，桌面端不会触发 ========== */
