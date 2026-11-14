@@ -1351,20 +1351,6 @@
   }
   @keyframes sk-shimmer { to { background-position: -200% 0; } }
 
-  /* ========== 下拉刷新提示气泡 ========== */
-  .ptr-tip {
-    position: fixed; top: 12px; left: 50%;
-    transform: translateX(-50%) translateY(-64px);
-    z-index: 120;
-    background: var(--theme); color: #fff;
-    font-size: 12.5px; font-weight: 700;
-    padding: 8px 18px; border-radius: 999px;
-    box-shadow: 0 4px 14px var(--shadow);
-    transition: transform .18s;
-    pointer-events: none;
-  }
-  .ptr-tip.show { transform: translateX(-50%) translateY(0); }
-
   /* ========== 触屏按压反馈：所有可点元素按下微缩，告别"点了没反应" ========== */
   @media (hover: none) {
     .chip, .apply, .m-cat-btn, .more-btn, .rail-btn, .rail-feature, .rail-setting,
@@ -3174,7 +3160,7 @@
   window.addEventListener("scroll", function () { clearHover(); hideJobTip(); hideCityTip(); }, true);
 
   /* ========================================================
-     手机端：底部弹层体系（岗位详情 / 筛选）+ 无限滚动 + 下拉刷新
+     手机端：底部弹层体系（岗位详情 / 筛选）+ 无限滚动
      触屏专用（TOUCH = 无悬停能力的设备），桌面端一行不碰
      ======================================================== */
 
@@ -3287,31 +3273,6 @@
     renderLimit += 20;
     render();
   }, { passive: true });
-
-  /* --- 下拉刷新：在页面顶部继续下拉出现提示气泡，松手刷新（配合每日 8 点更新心智） --- */
-  (function () {
-    if (!TOUCH) return;
-    var ind = document.createElement("div");
-    ind.className = "ptr-tip";
-    ind.textContent = "↓ 下拉刷新";
-    document.body.appendChild(ind);
-    var sy = 0, armed = false, ready = false;
-    document.addEventListener("touchstart", function (e) {
-      if (window.scrollY <= 0) { sy = e.touches[0].clientY; armed = true; ready = false; }
-      else armed = false;
-    }, { passive: true });
-    document.addEventListener("touchmove", function (e) {
-      if (!armed) return;
-      var d = e.touches[0].clientY - sy;
-      if (d > 80 && window.scrollY <= 0) { ready = true; ind.textContent = "↻ 松开刷新"; ind.classList.add("show"); }
-      else { ready = false; ind.classList.remove("show"); }
-    }, { passive: true });
-    document.addEventListener("touchend", function () {
-      if (ready) { location.reload(); return; }
-      ind.classList.remove("show");
-      armed = false;
-    }, { passive: true });
-  })();
 
   buildRailCounts();
   updateFavCount();
