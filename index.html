@@ -1201,6 +1201,77 @@
   .form-row input:focus { border-color: var(--theme); box-shadow: 0 0 0 3px var(--theme-soft); }
   .form-err { font-size: 11px; color: var(--tag-red); margin-top: 8px; display: none; }
   .form-err.open { display: block; }
+  /* ========== 手机端适配（≤768px）：电脑端完全不受影响 ========== */
+  .m-cat-btn { display: none; }
+  @media (max-width: 768px) {
+    /* 顶栏：塞下"☰ 分类"按钮 + 品牌缩小 */
+    .topbar { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+    .m-cat-btn {
+      display: inline-flex; align-items: center; gap: 5px; flex: none;
+      height: 34px; padding: 0 13px;
+      border: 1px solid color-mix(in srgb, var(--theme) 45%, transparent);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--theme) 10%, transparent);
+      color: var(--theme); font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer;
+    }
+    .page-title { font-size: 20px; letter-spacing: 1px; }
+    .page-title .brand-en { font-size: 20px; }
+    .page-title .brand-tag { font-size: 9px; padding: 1px 6px; margin-left: 6px; }
+    .page-title .brand-zh { font-size: 12px; letter-spacing: 2px; }
+    .page-title .sub { font-size: 9px; letter-spacing: 1.5px; }
+    .top-actions { width: 100%; margin-left: 0; gap: 8px; }
+    .result-count { text-align: left; }
+
+    /* 左侧竖条 → 底部导航栏（像 App 底栏） */
+    .rail {
+      top: auto; bottom: 0; right: 0;
+      width: 100%;
+      flex-direction: row;
+      padding: 4px 2px calc(4px + env(safe-area-inset-bottom, 0px));
+      border-right: none;
+      border-top: 1px solid var(--border);
+    }
+    .rail .logo { font-size: 20px; padding: 0 4px; border-bottom: none; width: auto; flex: none; }
+    .rail-btn { width: auto; flex: 1; margin-top: 0; padding: 3px 0; gap: 1px; }
+    .rail-btn .ico { font-size: 16px; }
+    .rail-btn .lbl { font-size: 9.5px; }
+    .rail-btn .n { font-size: 9px; }
+    .rail-badge { top: -4px; right: -2px; font-size: 7.5px; padding: 2px 4px; }
+    .rail-spacer, .rail-divider { display: none; }
+    .rail-feature, .rail-setting { width: auto; flex: 1; margin-bottom: 0; padding: 3px 0; font-size: 9.5px; }
+    .rail-feature .ico, .rail-setting .ico { font-size: 16px; }
+
+    /* 岗位分类列 → 左侧抽屉（点"☰ 分类"滑出，点遮罩/选完分类收回） */
+    .col2 {
+      left: 0; top: 0; bottom: 0;
+      width: min(80vw, 300px);
+      z-index: 45;
+      transform: translateX(-105%);
+      transition: transform .25s ease;
+      box-shadow: 0 0 44px var(--shadow);
+    }
+    body.drawer-open .col2 { transform: translateX(0); }
+    .drawer-mask {
+      position: fixed; left: 0; right: 0; top: 0; bottom: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 44;
+      opacity: 0; visibility: hidden;
+      transition: opacity .2s, visibility .2s;
+    }
+    body.drawer-open .drawer-mask { opacity: 1; visibility: visible; }
+
+    /* 主内容铺满全屏，卡片单列 */
+    .main { margin-left: 0; padding-bottom: 66px; }
+    .grid { grid-template-columns: 1fr; padding: 14px 14px 26px; gap: 12px; }
+    .citybar { padding: 10px 14px; gap: 8px; }
+    .filterbar { padding: 8px 14px 10px; gap: 6px 14px; }
+    .card { padding: 15px 16px 13px; }
+    /* 手机输入框字号 ≥16px，避免 iOS 聚焦时页面自动放大 */
+    .search-box input, .city-search input { font-size: 16px; }
+    .city-search input { width: 120px; }
+    footer { padding: 16px 14px 76px; }
+  }
 </style>
 </head>
 <body>
@@ -1332,6 +1403,9 @@
   </div>
 </div>
 
+<!-- 手机端抽屉遮罩：桌面端永远隐藏 -->
+<div class="drawer-mask" id="drawerMask"></div>
+
 <!-- 第二列：搜索 + 岗位分类 -->
 <aside class="col2">
   <div class="search-box">
@@ -1346,6 +1420,7 @@
 <!-- 右侧内容区 -->
 <div class="main">
   <div class="topbar">
+    <button class="m-cat-btn" id="mCatBtn" aria-label="打开岗位分类菜单">☰ 分类</button>
     <div class="page-title" id="pageTitle"><span class="brand-en">YESPUGOU'S<span class="brand-tag">CAMPUS RADAR</span><span class="about-wrap"><button class="about-btn" id="aboutBtn" aria-label="网站介绍">i</button><span class="about-pop" id="aboutPop"><b>写给同样在秋招里焦虑的你</b><br>我很感同身受焦虑大多不是来自不够努力，而是来自不确定：岗位散落在几十个公众号和网站里，刷得越多，心越慌。<br>只做一件小事：每天早上 8 点，把全网校招信息整理成一页看得完的清单——官网直链、截止倒计时、AI 岗位匹配，一键到位<br>心理学的答案很简单：对抗焦虑，靠的不是更多信息，而是把不确定变成确定的一小步<br>愿你在这里少刷一点、多投一点，等来属于你的那个 Offer</span></span></span><span class="brand-zh">一咝卟狗 校招岗位速递情报站</span><span class="sub">开源维护人：歪艾斯阿尔</span></div>
     <div class="top-actions">
       <button class="all-btn" id="btnExitRec" style="display:none" title="退出 AI 推荐筛选，恢复显示全部岗位">← 退出推荐筛选</button>
@@ -1468,7 +1543,7 @@
       try { if (localStorage.getItem("job-site-mode") === "light") saved = "light"; } catch (e) {}
     }
     /* 默认莓果（用户指定：所有新访客第一眼都是莓果）*/
-    applyTheme(saved || "blossom");
+    applyTheme(saved || "dark");
   })();
 
   /* 设置弹层开关 */
@@ -2965,6 +3040,19 @@
 
   buildRailCounts();
   updateFavCount();
+
+  /* ===== 手机端：分类抽屉开关（≤768px 才可见，桌面端点了也没副作用） ===== */
+  (function () {
+    var mBtn = document.getElementById("mCatBtn");
+    var mask = document.getElementById("drawerMask");
+    function closeDrawer() { document.body.classList.remove("drawer-open"); }
+    if (mBtn) mBtn.addEventListener("click", function () { document.body.classList.toggle("drawer-open"); });
+    if (mask) mask.addEventListener("click", closeDrawer);
+    /* 手机上选完分类自动收回抽屉（桌面端宽屏永远不触发） */
+    typeList.addEventListener("click", function () {
+      if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) closeDrawer();
+    });
+  })();
 
   /* 介绍小按钮：点击也能开关（鼠标悬停即时显示，点击兜底），点别处收起 */
   (function () {
