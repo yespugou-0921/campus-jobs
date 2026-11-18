@@ -365,7 +365,7 @@
   .col2 {
     position: fixed;
     left: 68px; top: 0; bottom: 0;
-    width: 236px;
+    width: var(--col2w, 236px);
     background: var(--col2-bg);
     border-right: 1px solid var(--border);
     display: flex;
@@ -373,6 +373,25 @@
     z-index: 10;
     transition: background .25s;
   }
+  /* ========== 分类栏右缘拖拽分割条：按住左右拖，调宽/窄分类栏（宽度记忆在本机） ========== */
+  .col-split {
+    position: fixed;
+    left: calc(68px + var(--col2w, 236px));
+    top: 0; bottom: 0;
+    width: 8px; margin-left: -4px;
+    cursor: col-resize;
+    z-index: 30;
+    background: transparent;
+    transition: background .15s;
+  }
+  .col-split::after {
+    content: "";
+    position: absolute; left: 3px; top: 0; bottom: 0; width: 2px;
+    background: transparent; transition: background .15s;
+  }
+  .col-split:hover::after, .col-split.dragging::after { background: color-mix(in srgb, var(--theme) 55%, transparent); }
+  body.col-resizing { cursor: col-resize; user-select: none; }
+  body.col-resizing .col2 { transition: none; }
   .search-box { position: relative; padding: 16px 14px 12px; }
   .search-box input {
     width: 100%;
@@ -448,7 +467,7 @@
   }
 
   /* ========== 右侧内容区 ========== */
-  .main { margin-left: 304px; min-height: 100vh; display: flex; flex-direction: column; }
+  .main { margin-left: calc(68px + var(--col2w, 236px)); min-height: 100vh; display: flex; flex-direction: column; }
   .topbar {
     background: var(--bg);
     border-bottom: 1px solid var(--border);
@@ -1318,6 +1337,7 @@
     .rail-feature .ico, .rail-setting .ico { font-size: 16px; }
 
     /* 岗位分类列 → 左侧抽屉（点"☰ 分类"滑出，点遮罩/选完分类收回） */
+    .col-split { display: none; }   /* 手机端抽屉固定宽度，不需要拖拽条 */
     .col2 {
       left: 0; top: 0; bottom: 0;
       width: min(80vw, 300px);
@@ -1581,6 +1601,9 @@
   <div class="type-list" id="typeList"></div>
   <div class="col2-foot">数据每日自动更新<br>来源于公开校招信息聚合项目</div>
 </aside>
+
+<!-- 分类栏右缘拖拽分割条：按住左右拖调宽窄（桌面端） -->
+<div class="col-split" id="colSplit" title="拖动调宽/窄分类栏"></div>
 
 <!-- 右侧内容区 -->
 <div class="main">
@@ -1951,6 +1974,46 @@
         render();
       });
     }
+  })();
+
+  /* ===== 分类栏宽度拖拽：按住右缘分割条左右拖调宽窄，宽度记忆在本机，双击恢复默认 ===== */
+  (function () {
+    var split = document.getElementById("colSplit");
+    if (!split) return;
+    var MIN = 190, MAX = 430, DEFAULT = 236;
+    var saved = 0;
+    try { saved = parseInt(localStorage.getItem("col2w") || "0", 10) || 0; } catch (e) {}
+    if (saved >= MIN && saved <= MAX) document.documentElement.style.setProperty("--col2w", saved + "px");
+    var dragging = false, startX = 0, startW = 0;
+    var col2 = document.querySelector(".col2");
+    split.addEventListener("mousedown", function (e) {
+      if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) return;   /* 手机端无此交互 */
+      dragging = true;
+      startX = e.clientX;
+      startW = parseInt(getComputedStyle(col2).width, 10) || DEFAULT;
+      document.body.classList.add("col-resizing");
+      split.classList.add("dragging");
+      e.preventDefault();
+    });
+    window.addEventListener("mousemove", function (e) {
+      if (!dragging) return;
+      var wv = startW + (e.clientX - startX);
+      if (wv < MIN) wv = MIN;
+      if (wv > MAX) wv = MAX;
+      document.documentElement.style.setProperty("--col2w", wv + "px");
+    });
+    window.addEventListener("mouseup", function () {
+      if (!dragging) return;
+      dragging = false;
+      document.body.classList.remove("col-resizing");
+      split.classList.remove("dragging");
+      var wv = parseInt(getComputedStyle(col2).width, 10) || DEFAULT;
+      try { localStorage.setItem("col2w", String(wv)); } catch (e) {}
+    });
+    split.addEventListener("dblclick", function () {
+      document.documentElement.style.setProperty("--col2w", DEFAULT + "px");
+      try { localStorage.setItem("col2w", String(DEFAULT)); } catch (e) {}
+    });
   })();
 
   /* ===== 城市方框悬停提示：显示该城市当前分类下的岗位介绍 ===== */
