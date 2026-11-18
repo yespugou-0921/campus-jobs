@@ -739,6 +739,34 @@
     box-shadow: 0 5px 14px var(--shadow);
     border-color: color-mix(in srgb, var(--border) 40%, rgba(255, 255, 255, .55));
   }
+  /* ===== 右上角角标：今日更新 / 明天截止（高饱和渐变+光晕，刻意和卡片底色拉开） ===== */
+  .corner-badges {
+    position: absolute; top: 10px; right: 10px;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+    z-index: 3; pointer-events: none;
+  }
+  .cbadge {
+    padding: 4px 11px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: .5px;
+    color: #fff; white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, .5);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .28);
+  }
+  .cb-today {
+    background: linear-gradient(135deg, #FF9A3D, #F1444E);
+    box-shadow: 0 2px 10px rgba(241, 68, 78, .45);
+  }
+  .cb-tmr {
+    background: linear-gradient(135deg, #FF2D78, #C51162);
+    box-shadow: 0 2px 10px rgba(255, 45, 120, .45);
+    animation: cbPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes cbPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  .card.has-cbadge .company { padding-right: 100px; }
+  @media (prefers-reduced-motion: reduce) { .cb-tmr { animation: none; } }
   .card .company { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.4; }
   .card .company .new {
     display: inline-block;
@@ -2036,8 +2064,27 @@
       for (var w = 0; w < active.length; w++) { (dlTsOf(jobs[active[w]]) !== null ? withTs : noTs).push(active[w]); }
       withTs.sort(function (x, y) { return dir * (dlTsOf(jobs[x]) - dlTsOf(jobs[y])); });
       active = withTs.concat(noTs);
+    } else {
+      /* 默认排序：今日新增(fresh)置顶，其余按截止时间由早到晚，没写截止日期的垫底 */
+      var freshList = [], restTs = [], restNo = [];
+      for (var w2 = 0; w2 < active.length; w2++) {
+        var jj = jobs[active[w2]];
+        if (jj.fresh) freshList.push(active[w2]);
+        else (dlTsOf(jj) !== null ? restTs : restNo).push(active[w2]);
+      }
+      freshList.sort(function (x, y) { return (dlTsOf(jobs[x]) || Infinity) - (dlTsOf(jobs[y]) || Infinity); });
+      restTs.sort(function (x, y) { return dlTsOf(jobs[x]) - dlTsOf(jobs[y]); });
+      active = freshList.concat(restTs, restNo);
     }
     var ordered = active.concat(endedList);
+
+    /* 角标基准日期：以数据生成日为准（爬虫哪天抓的，"今日/明天"就相对哪天算） */
+    var BASE_DATE = (window.DATA_GENERATED_AT || "").slice(0, 10);
+    var baseTs = (function () {
+      if (BASE_DATE) { var p = BASE_DATE.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).getTime(); }
+      var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    })();
+    var TOMORROW_TS = baseTs + 86400000;
 
     grid.innerHTML = "";
     var shown = 0;
@@ -2048,11 +2095,17 @@
       var applyHtml = applyBtnHtml(j2);
       var endedBadge = j2.ended ? '<span class="ended-badge"><i>!</i>已结束</span>' : '';
 
+      /* 右上角角标：今日更新（爬虫今天新抓到的）+ 明天截止（截止日=数据生成日的明天） */
+      var bToday = (j2.fresh && !j2.ended) ? '<span class="cbadge cb-today">今日更新</span>' : '';
+      var bTmr = (!j2.ended && dlTsOf(j2) === TOMORROW_TS) ? '<span class="cbadge cb-tmr">明天截止！</span>' : '';
+      var hasCbadge = (bToday || bTmr) ? " has-cbadge" : "";
+
       var card = document.createElement("div");
-      card.className = "card" + (j2.ended ? " ended" : "");
+      card.className = "card" + (j2.ended ? " ended" : "") + hasCbadge;
       card.setAttribute("data-idx", i2);   // 悬停详情用：对应 jobs 数组下标
       card.innerHTML =
-        '<div class="company">' + endedBadge + j2.company + (j2.isNew && !j2.ended ? '<span class="new">NEW</span>' : '') + '</div>' +
+        (bToday || bTmr ? '<div class="corner-badges">' + bToday + bTmr + '</div>' : '') +
+        '<div class="company">' + endedBadge + j2.company + (j2.isNew && !j2.fresh && !j2.ended ? '<span class="new">NEW</span>' : '') + '</div>' +
         '<div class="role">' + j2.title + '</div>' +
         '<div class="tags">' +
           (j2.city === "未公布" ? "" : '<span class="tag city">📍 ' + j2.city + '</span>') +

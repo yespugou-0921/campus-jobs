@@ -556,6 +556,27 @@ def dedupe(jobs):
     return out
 
 
+def mark_fresh(jobs):
+    """和上一次生成的 data.js 对比，今天新出现的岗位打 fresh 标记（页面置顶 + 「今日更新」角标用）"""
+    old_keys = set()
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                m = re.search(r"var JOBS = (\[.*\]);", f.read(), re.S)
+            if m:
+                for o in json.loads(m.group(1)):
+                    old_keys.add((o.get("company", ""), o.get("deadline", ""), (o.get("title") or "")[:20]))
+        except Exception:
+            pass   # 旧文件解析失败就当没有旧数据，全部不算新
+    n = 0
+    for j in jobs:
+        if (j["company"], j["deadline"], j["title"][:20]) not in old_keys:
+            j["fresh"] = True
+            n += 1
+    print("今日新增岗位 %d 条" % n)
+    return jobs
+
+
 def write_data_js(jobs):
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
@@ -593,6 +614,7 @@ def main():
     added = enrich_official_sites(jobs)
     print("官方招聘网对照表补充链接 %d 条" % added)
 
+    mark_fresh(jobs)
     write_data_js(jobs)
     print("data.js 更新完成！备份已保存为 data.js.bak")
 
