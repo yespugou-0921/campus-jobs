@@ -2057,6 +2057,13 @@
     for (var a = 0; a < matched.length; a++) {
       (jobs[matched[a]].ended ? endedList : active).push(matched[a]);
     }
+    /* 角标基准日期：以数据生成日为准（爬虫哪天抓的，"今日/明天"就相对哪天算） */
+    var BASE_DATE = (window.DATA_GENERATED_AT || "").slice(0, 10);
+    var baseTs = (function () {
+      if (BASE_DATE) { var p = BASE_DATE.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).getTime(); }
+      var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    })();
+    var TOMORROW_TS = baseTs + 86400000;
     /* 截止时间排序：由早到晚 / 由晚到早；"三天内截止"顺手按由早到晚排，最急的排最前 */
     if (dlMode === "asc" || dlMode === "desc" || dlMode === "3d") {
       var dir = dlMode === "desc" ? -1 : 1;
@@ -2065,26 +2072,20 @@
       withTs.sort(function (x, y) { return dir * (dlTsOf(jobs[x]) - dlTsOf(jobs[y])); });
       active = withTs.concat(noTs);
     } else {
-      /* 默认排序：今日新增(fresh)置顶，其余按截止时间由早到晚，没写截止日期的垫底 */
-      var freshList = [], restTs = [], restNo = [];
+      /* 默认排序：明天截止的顶最前 → 今日新增(fresh)其次 → 其余按截止时间由早到晚，没写截止日期的垫底 */
+      var tmrList = [], freshList = [], restTs = [], restNo = [];
       for (var w2 = 0; w2 < active.length; w2++) {
         var jj = jobs[active[w2]];
-        if (jj.fresh) freshList.push(active[w2]);
+        if (dlTsOf(jj) === TOMORROW_TS) tmrList.push(active[w2]);        /* 明天截止：最优先（含同时是fresh的） */
+        else if (jj.fresh) freshList.push(active[w2]);                    /* 今日新增：次优先 */
         else (dlTsOf(jj) !== null ? restTs : restNo).push(active[w2]);
       }
+      tmrList.sort(function (x, y) { return (dlTsOf(jobs[x]) || Infinity) - (dlTsOf(jobs[y]) || Infinity); });
       freshList.sort(function (x, y) { return (dlTsOf(jobs[x]) || Infinity) - (dlTsOf(jobs[y]) || Infinity); });
       restTs.sort(function (x, y) { return dlTsOf(jobs[x]) - dlTsOf(jobs[y]); });
-      active = freshList.concat(restTs, restNo);
+      active = tmrList.concat(freshList, restTs, restNo);
     }
     var ordered = active.concat(endedList);
-
-    /* 角标基准日期：以数据生成日为准（爬虫哪天抓的，"今日/明天"就相对哪天算） */
-    var BASE_DATE = (window.DATA_GENERATED_AT || "").slice(0, 10);
-    var baseTs = (function () {
-      if (BASE_DATE) { var p = BASE_DATE.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).getTime(); }
-      var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-    })();
-    var TOMORROW_TS = baseTs + 86400000;
 
     grid.innerHTML = "";
     var shown = 0;
