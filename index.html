@@ -613,7 +613,22 @@
     border: 1px solid var(--border); border-radius: 8px;
     overflow: hidden;
   }
-  .nb-ico { font-size: 13px; flex: none; }
+  .nb-ico {
+    flex: none;
+    width: 24px; height: 24px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--theme), var(--theme-dark, var(--theme)));
+    box-shadow: 0 0 0 0 var(--theme);
+    animation: nbGlow 3s ease-in-out infinite;
+  }
+  .nb-ico svg { width: 14px; height: 14px; display: block; }
+  @keyframes nbGlow {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--theme) 45%, transparent); }
+    50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--theme) 0%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) { .nb-ico { animation: none; } }
   .nb-viewport { flex: 1; overflow: hidden; }
   .nb-track { display: inline-flex; white-space: nowrap; animation: nb-scroll 45s linear infinite; will-change: transform; }
   .notice-bar:hover .nb-track { animation-play-state: paused; }
@@ -1568,7 +1583,7 @@
   </div>
 
   <!-- 滚动公告横幅：今日新增 + 重要国企截止倒计时（手机端隐藏） -->
-  <div class="notice-bar" id="noticeBar"><span class="nb-ico">📢</span><div class="nb-viewport"><div class="nb-track" id="nbTrack"></div></div></div>
+  <div class="notice-bar" id="noticeBar"><span class="nb-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5v3a1.5 1.5 0 0 0 1.5 1.5H6l3.5 3.5V5.5L6 9H4.5A1.5 1.5 0 0 0 3 10.5z" fill="currentColor" stroke="none"/><path d="M14 9.2a4 4 0 0 1 0 5.6"/><path d="M16.8 6.6a8 8 0 0 1 0 10.8"/></svg></span><div class="nb-viewport"><div class="nb-track" id="nbTrack"></div></div></div>
 
   <!-- 手机端筛选入口：点开底部弹层选届数/截止（≤768px 才显示） -->
   <div class="m-filter-bar" id="mFilterBar"><button class="m-filter-btn" id="mFilterBtn" type="button">⚙ 筛选<span id="mFilterCount"></span></button></div>
