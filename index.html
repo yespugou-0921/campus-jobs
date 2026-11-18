@@ -2413,8 +2413,13 @@
     var parts = ['🔥 今日新增 <b>' + newCount + '</b> 个岗位（每日 8:00 自动更新）'];
     var RAIL_LABEL = { autumn: "秋招", spring: "春招", intern: "实习" };
     for (var s = 0; s < soe.length && s < 8; s++) {
-      var dTxt = soe[s].days === 0 ? "今天截止" : (soe[s].days === 1 ? "明天截止" : "仅剩 " + soe[s].days + " 天");
-      parts.push('<span class="nb-soon' + (soe[s].days <= 3 ? " urgent" : "") + '">⚡ <b>' + soe[s].c + '</b><span class="nb-cat">' + (RAIL_LABEL[soe[s].rail] || "校招") + '</span>' + soe[s].md + ' 截止，' + dTxt + '</span>');
+      /* 只写一种：紧急的写「今天/明天/仅剩N天」截止，不紧急的写日期 */
+      var dTxt;
+      if (soe[s].days === 0) dTxt = "今天截止";
+      else if (soe[s].days === 1) dTxt = "明天截止";
+      else if (soe[s].days <= 7) dTxt = soe[s].days + " 天后截止";
+      else dTxt = soe[s].md + " 截止";
+      parts.push('<span class="nb-soon' + (soe[s].days <= 3 ? " urgent" : "") + '">⚡ <b>' + soe[s].c + '</b><span class="nb-cat">' + (RAIL_LABEL[soe[s].rail] || "校招") + '</span>' + dTxt + '</span>');
     }
     var html = parts.join('<span class="nb-sep">｜</span>') + '<span class="nb-sep">｜</span>';
     /* 内容画两遍，无缝循环滚动 */
