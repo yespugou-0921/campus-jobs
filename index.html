@@ -695,6 +695,17 @@
   .fchips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .flabel { font-size: 12px; font-weight: 700; color: var(--text); flex: none; }
   .fchip { padding: 3px 11px; font-size: 11.5px; }
+  /* 取消所有筛选：幽灵文字按钮，平时低调，有筛选时才点亮 */
+  .reset-filters {
+    border: none; background: none; cursor: pointer; font-family: inherit;
+    font-size: 11.5px; font-weight: 600; color: var(--text-3);
+    padding: 3px 8px; border-radius: 999px; flex: none;
+    display: none; align-items: center; gap: 4px;
+    transition: color .15s;
+  }
+  .reset-filters.show { display: inline-flex; }
+  .reset-filters:hover { color: var(--tag-red); }
+  .reset-filters:active { transform: scale(.95); }
 
   /* 城市悬停提示浮层：显示该城市的岗位介绍 */
   .city-tip {
@@ -1616,6 +1627,7 @@
       <span class="chip fchip qchip" data-q="fresh">只看今日更新</span>
       <span class="chip fchip qchip" data-q="tmr">只看明天截止</span>
     </div>
+    <button type="button" class="reset-filters" id="resetFilters" title="一键还原全部筛选条件">↺ 取消所有筛选</button>
   </div>
 
   <div class="grid" id="grid">
@@ -1917,6 +1929,28 @@
         render();
       });
     });
+    /* 取消所有筛选：一键还原城市/届数/截止/快捷/搜索词，回到页面初始状态 */
+    var resetBtn = document.getElementById("resetFilters");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        selCities = [];
+        selGrads = [];
+        dlMode = "";
+        quickFilter = "";
+        keyword = "";
+        cityKeyword = "";
+        cityExpanded = false;
+        var si = document.getElementById("searchInput");
+        if (si) si.value = "";
+        var cs = document.getElementById("citySearch");
+        if (cs) cs.value = "";
+        var cc = document.getElementById("clearCity");
+        if (cc) cc.style.display = "none";
+        buildCity();
+        buildFilterbar();
+        render();
+      });
+    }
   })();
 
   /* ===== 城市方框悬停提示：显示该城市当前分类下的岗位介绍 ===== */
@@ -2066,6 +2100,12 @@
     if (mfc) {
       var fn = selGrads.length + (dlMode ? 1 : 0) + (quickFilter ? 1 : 0);
       mfc.textContent = fn ? " · 已选 " + fn : "";
+    }
+    /* 「取消所有筛选」按钮：有任何筛选条件（城市/届数/截止/快捷/搜索词）才亮出来 */
+    var resetBtn = document.getElementById("resetFilters");
+    if (resetBtn) {
+      var dirty = selCities.length > 0 || selGrads.length > 0 || !!dlMode || !!quickFilter || !!keyword;
+      resetBtn.classList.toggle("show", dirty && !favMode);
     }
     var NOW = Date.now();
 
@@ -2238,6 +2278,7 @@
     currentType = "全部";
     selGrads = [];
     dlMode = "";
+    quickFilter = "";
     document.querySelectorAll(".rail-btn").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-rail") === r);
     });
