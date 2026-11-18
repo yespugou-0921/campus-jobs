@@ -1611,6 +1611,11 @@
       <span class="chip fchip" data-dl="desc">由晚到早</span>
       <span class="chip fchip" data-dl="3d">三天内截止</span>
     </div>
+    <div class="fgroup" id="fgQuick">
+      <span class="flabel">快捷</span>
+      <span class="chip fchip qchip" data-q="fresh">只看今日更新</span>
+      <span class="chip fchip qchip" data-q="tmr">只看明天截止</span>
+    </div>
   </div>
 
   <div class="grid" id="grid">
@@ -1635,6 +1640,7 @@
   /* 新筛选条状态：届数多选（空数组=不限）+ 截止时间（""=默认 / asc / desc / 3d） */
   var selGrads = [];
   var dlMode = "";
+  var quickFilter = "";   /* 快捷筛选："" 不限 | "fresh" 只看今日更新 | "tmr" 只看明天截止 */
 
   /* 触屏设备判定（手机/平板：无悬停能力）：悬停简介、跟手等鼠标交互全部让位给点击+底部弹层 */
   var TOUCH = false;
@@ -1876,6 +1882,9 @@
     document.querySelectorAll(".fchip[data-dl]").forEach(function (c) {
       c.classList.toggle("active", c.getAttribute("data-dl") === dlMode);
     });
+    document.querySelectorAll(".fchip[data-q]").forEach(function (c) {
+      c.classList.toggle("active", c.getAttribute("data-q") === quickFilter);
+    });
   }
   /* 届数 + 截止时间 chip 都是静态元素：监听器只绑一次，避免重复触发 */
   (function bindStaticFilterChips() {
@@ -1895,6 +1904,15 @@
       c.addEventListener("click", function () {
         var v = this.getAttribute("data-dl");
         dlMode = (dlMode === v) ? "" : v;   /* 再点一次回默认 */
+        buildFilterbar();
+        render();
+      });
+    });
+    /* 快捷筛选：今日更新 / 明天截止，互斥开关（再点一次取消；点另一个自动切换） */
+    document.querySelectorAll(".fchip[data-q]").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var v = this.getAttribute("data-q");
+        quickFilter = (quickFilter === v) ? "" : v;
         buildFilterbar();
         render();
       });
@@ -2035,7 +2053,7 @@
   var lastFilterSig = "";
 
   function render() {
-    var sig = [currentRail, currentType, selCities.join("+"), selGrads.join("+"), keyword, recommendMode, favMode, dlMode].join("|");
+    var sig = [currentRail, currentType, selCities.join("+"), selGrads.join("+"), keyword, recommendMode, favMode, dlMode, quickFilter].join("|");
     if (sig !== lastFilterSig) { renderLimit = TOUCH ? 20 : RENDER_STEP; lastFilterSig = sig; }
 
     /* 收藏模式下隐藏城市条和筛选条（收藏跨所有城市） */
@@ -2046,7 +2064,7 @@
     if (mfbBar) mfbBar.style.display = favMode ? "none" : "";
     var mfc = document.getElementById("mFilterCount");
     if (mfc) {
-      var fn = selGrads.length + (dlMode ? 1 : 0);
+      var fn = selGrads.length + (dlMode ? 1 : 0) + (quickFilter ? 1 : 0);
       mfc.textContent = fn ? " · 已选 " + fn : "";
     }
     var NOW = Date.now();
@@ -2097,8 +2115,14 @@
       var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
     })();
     var TOMORROW_TS = baseTs + 86400000;
+    /* 快捷筛选：只看今日更新 / 只看明天截止（互斥），直接砍掉不符合的 */
+    if (quickFilter === "fresh") {
+      active = active.filter(function (idx) { return jobs[idx].fresh && !jobs[idx].ended; });
+    } else if (quickFilter === "tmr") {
+      active = active.filter(function (idx) { return dlTsOf(jobs[idx]) === TOMORROW_TS; });
+    }
     /* 截止时间排序：由早到晚 / 由晚到早；"三天内截止"顺手按由早到晚排，最急的排最前 */
-    if (dlMode === "asc" || dlMode === "desc" || dlMode === "3d") {
+    if (dlMode === "asc" || dlMode === "desc" || dlMode === "3d" || quickFilter) {
       var dir = dlMode === "desc" ? -1 : 1;
       var withTs = [], noTs = [];
       for (var w = 0; w < active.length; w++) { (dlTsOf(jobs[active[w]]) !== null ? withTs : noTs).push(active[w]); }
