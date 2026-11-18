@@ -619,6 +619,13 @@
   .notice-bar:hover .nb-track { animation-play-state: paused; }
   .nb-item { display: inline-block; font-size: 12px; color: var(--text-2); }
   .nb-item b { color: var(--theme); font-weight: 700; }
+  /* 跑马灯里的「秋招/春招/实习」小标签 */
+  .nb-cat {
+    display: inline-block; margin: 0 6px 0 7px; padding: 1px 7px;
+    border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .5px;
+    color: var(--theme); border: 1px solid var(--theme);
+    vertical-align: 1px;
+  }
   .nb-soon b { color: var(--theme); }
   .nb-soon.urgent b { color: var(--tag-red); }
   .nb-sep { padding: 0 34px; color: var(--text-3); opacity: .45; }
@@ -739,31 +746,42 @@
     box-shadow: 0 5px 14px var(--shadow);
     border-color: color-mix(in srgb, var(--border) 40%, rgba(255, 255, 255, .55));
   }
-  /* ===== 右上角角标：今日更新 / 明天截止（高饱和渐变+光晕，刻意和卡片底色拉开） ===== */
+  /* ===== 右上角角标：今日更新 / 明天截止（磨砂玻璃底+渐变描边+柔光呼吸，克制高级风） ===== */
   .corner-badges {
     position: absolute; top: 10px; right: 10px;
     display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
     z-index: 3; pointer-events: none;
   }
   .cbadge {
-    padding: 4px 11px; border-radius: 999px;
-    font-size: 10.5px; font-weight: 800; letter-spacing: .5px;
-    color: #fff; white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, .5);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, .28);
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px;
+    color: #FFFFFF; white-space: nowrap;
+    background: rgba(18, 14, 22, .52);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, .28);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .14);
+  }
+  .cbadge .cb-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
   }
   .cb-today {
-    background: linear-gradient(135deg, #FF9A3D, #F1444E);
-    box-shadow: 0 2px 10px rgba(241, 68, 78, .45);
+    color: #FFD9A8;
+    border-color: rgba(255, 176, 88, .65);
+    box-shadow: 0 4px 16px rgba(255, 150, 50, .28), inset 0 1px 0 rgba(255, 255, 255, .14);
   }
   .cb-tmr {
-    background: linear-gradient(135deg, #FF2D78, #C51162);
-    box-shadow: 0 2px 10px rgba(255, 45, 120, .45);
-    animation: cbPulse 2.2s ease-in-out infinite;
+    color: #FFC9DB;
+    border-color: rgba(255, 96, 150, .7);
+    box-shadow: 0 4px 16px rgba(255, 60, 120, .3), inset 0 1px 0 rgba(255, 255, 255, .14);
+    animation: cbGlow 2.6s ease-in-out infinite;
   }
-  @keyframes cbPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.06); }
+  /* 柔光呼吸替代旧缩放脉冲：不晃眼，但有"还活着"的信号 */
+  @keyframes cbGlow {
+    0%, 100% { box-shadow: 0 4px 16px rgba(255, 60, 120, .30), inset 0 1px 0 rgba(255, 255, 255, .14); }
+    50%      { box-shadow: 0 4px 24px rgba(255, 60, 120, .60), inset 0 1px 0 rgba(255, 255, 255, .14); }
   }
   .card.has-cbadge .company { padding-right: 100px; }
   @media (prefers-reduced-motion: reduce) { .cb-tmr { animation: none; } }
@@ -2097,8 +2115,8 @@
       var endedBadge = j2.ended ? '<span class="ended-badge"><i>!</i>已结束</span>' : '';
 
       /* 右上角角标：今日更新（爬虫今天新抓到的）+ 明天截止（截止日=数据生成日的明天） */
-      var bToday = (j2.fresh && !j2.ended) ? '<span class="cbadge cb-today">今日更新</span>' : '';
-      var bTmr = (!j2.ended && dlTsOf(j2) === TOMORROW_TS) ? '<span class="cbadge cb-tmr">明天截止！</span>' : '';
+      var bToday = (j2.fresh && !j2.ended) ? '<span class="cbadge cb-today"><i class="cb-dot"></i>今日更新</span>' : '';
+      var bTmr = (!j2.ended && dlTsOf(j2) === TOMORROW_TS) ? '<span class="cbadge cb-tmr"><i class="cb-dot"></i>明天截止</span>' : '';
       var hasCbadge = (bToday || bTmr) ? " has-cbadge" : "";
 
       var card = document.createElement("div");
@@ -2157,6 +2175,37 @@
   }
 
   /* ===== 搜索自动补全：边输入边出候选，点候选直接在页面显示对应岗位；无结果显示暂无相关职位 ===== */
+  /* 搜索结果可能不在当前分类栏（如"安永"的实习岗在实习栏，默认秋招栏搜出来是0个）：点候选后自动跳到结果最多的栏 */
+  function autoRailFor(isCity, kw) {
+    var count = { autumn: 0, spring: 0, intern: 0 };
+    for (var i = 0; i < jobs.length; i++) {
+      var j = jobs[i];
+      if (j.ended) continue;
+      if (isCity) { if (j.city !== kw) continue; }
+      else {
+        var s = ((j.company || "") + " " + (j.title || "")).toLowerCase();
+        if (!kw || s.indexOf(kw) === -1) continue;
+      }
+      count[railOf(j)]++;
+    }
+    if (count[currentRail] > 0) return currentRail;   /* 当前栏有结果就不动 */
+    var best = currentRail;
+    for (var r in count) { if (count[r] > count[best]) best = r; }
+    return best;
+  }
+  function applyRail(r) {
+    if (r === currentRail) return;
+    currentRail = r;
+    currentType = "全部";
+    selGrads = [];
+    dlMode = "";
+    document.querySelectorAll(".rail-btn").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-rail") === r);
+    });
+    buildTypeList();
+    buildCity();
+    buildFilterbar();
+  }
   function buildAcList(wrap, items, onPick, emptyTip) {
     var list = wrap.querySelector(".ac-list");
     if (!list) {
@@ -2212,6 +2261,7 @@
     buildAcList(searchBoxWrap, items, function (it) {
       searchInput.value = it.text;
       keyword = it.text.toLowerCase();
+      applyRail(autoRailFor(false, keyword));   /* 当前栏搜不到时自动跳栏，点了候选马上能看到 */
       render();
       searchInput.blur();
     }, "暂无相关职位");
@@ -2247,6 +2297,7 @@
       citySearch.value = it.text;
       selCities = [it.text];
       cityKeyword = "";
+      applyRail(autoRailFor(true, it.text));   /* 该城市的结果可能在别的分类栏，自动跳过去 */
       buildCity();
       render();
       citySearch.blur();
@@ -2356,13 +2407,14 @@
       if (!m) continue;
       var days = Math.ceil((new Date(+m[1], +m[2] - 1, +m[3]) - now) / 86400000);
       if (days < 0) continue;
-      soe.push({ c: j.company, days: days, md: ("0" + (+m[2])).slice(-2) + "-" + ("0" + (+m[3])).slice(-2) });
+      soe.push({ c: j.company, days: days, md: ("0" + (+m[2])).slice(-2) + "-" + ("0" + (+m[3])).slice(-2), rail: railOf(j) });
     }
     soe.sort(function (a, b) { return a.days - b.days; });
     var parts = ['🔥 今日新增 <b>' + newCount + '</b> 个岗位（每日 8:00 自动更新）'];
+    var RAIL_LABEL = { autumn: "秋招", spring: "春招", intern: "实习" };
     for (var s = 0; s < soe.length && s < 8; s++) {
       var dTxt = soe[s].days === 0 ? "今天截止" : (soe[s].days === 1 ? "明天截止" : "仅剩 " + soe[s].days + " 天");
-      parts.push('<span class="nb-soon' + (soe[s].days <= 3 ? " urgent" : "") + '">⚡ <b>' + soe[s].c + '</b> ' + soe[s].md + ' 截止，' + dTxt + '</span>');
+      parts.push('<span class="nb-soon' + (soe[s].days <= 3 ? " urgent" : "") + '">⚡ <b>' + soe[s].c + '</b><span class="nb-cat">' + (RAIL_LABEL[soe[s].rail] || "校招") + '</span>' + soe[s].md + ' 截止，' + dTxt + '</span>');
     }
     var html = parts.join('<span class="nb-sep">｜</span>') + '<span class="nb-sep">｜</span>';
     /* 内容画两遍，无缝循环滚动 */
